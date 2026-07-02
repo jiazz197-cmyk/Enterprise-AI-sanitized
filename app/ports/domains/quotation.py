@@ -36,6 +36,23 @@ class SpecParseAndConvertPort(Protocol):
     ) -> Dict[str, Any]: ...
 
 
+class RemarkInterpreterPort(Protocol):
+    """Interpret free-text remarks into ``{canonical_field: adjusted_value}``.
+
+    Implementations MUST be resilient: on any failure (model service
+    unavailable, timeout, unparseable output) return an empty dict so the
+    pipeline proceeds with the original params unchanged.
+    """
+
+    def interpret(
+        self,
+        *,
+        remark_text: str,
+        current_fields: Dict[str, Any],
+        cancel_checker: CancelChecker = None,
+    ) -> Dict[str, str]: ...
+
+
 @dataclass
 class RasterPageResult:
     """First-page rasterization output."""

@@ -181,7 +181,7 @@ def health() -> HealthResponse:
     from app.core.storage import MINIO_BUCKET_NAME  # local import to avoid early init
 
     return HealthResponse(
-        ocr_endpoint=settings.DOTS_OCR_ENDPOINT,
+        ocr_endpoint=settings.OCR_MODEL_API_URL,
         minio_bucket=MINIO_BUCKET_NAME,
         rules_count=len(KEYWORD_RULES),
     )
@@ -254,7 +254,7 @@ async def run_ocr_only(file: UploadFile = File(..., description="PDF file")) -> 
         timings["minio_upload_s"] = round(perf_counter() - t0, 3)
 
         t0 = perf_counter()
-        content = extract_layout_info(image_url, settings.DOTS_OCR_ENDPOINT)
+        content = extract_layout_info(image_url, settings.OCR_MODEL_API_URL)
         timings["ocr_layout_s"] = round(perf_counter() - t0, 3)
 
         t0 = perf_counter()
@@ -297,7 +297,7 @@ async def run_ocr_mapping(file: UploadFile = File(..., description="PDF file")) 
         timings["minio_upload_s"] = round(perf_counter() - t0, 3)
 
         t0 = perf_counter()
-        content = extract_layout_info(image_url, settings.DOTS_OCR_ENDPOINT)
+        content = extract_layout_info(image_url, settings.OCR_MODEL_API_URL)
         timings["ocr_layout_s"] = round(perf_counter() - t0, 3)
 
         t0 = perf_counter()

@@ -114,16 +114,22 @@ class OcrPlainTextAdapter(OcrPlainTextPort):
             logger.warning("PDF 无页面")
             return "", 0
 
-        endpoint = settings.DOTS_OCR_ENDPOINT
-        max_tokens = getattr(settings, "OCR_DOTSOCR_MAX_TOKENS", 4096)
+        endpoint = settings.OCR_MODEL_API_URL
+        model_name = settings.OCR_MODEL_NAME
+        max_tokens = settings.OCR_MODEL_MAX_TOKENS
         ct = settings.OCR_HTTP_CONNECT_TIMEOUT
         rt = settings.OCR_HTTP_READ_TIMEOUT
+        headers = {"Content-Type": "application/json"}
+        # Local vLLM has no auth; external providers set OCR_MODEL_API_KEY
+        # (sent as a Bearer token).
+        if settings.OCR_MODEL_API_KEY:
+            headers["Authorization"] = f"Bearer {settings.OCR_MODEL_API_KEY}"
 
         all_texts: list[str] = []
         for page_idx, (img_bytes, _) in enumerate(pages):
             b64_data = base64.b64encode(img_bytes).decode("ascii")
             payload = {
-                "model": "rednote-hilab/dots.ocr",
+                "model": model_name,
                 "messages": [{
                     "role": "user",
                     "content": [
@@ -137,7 +143,7 @@ class OcrPlainTextAdapter(OcrPlainTextPort):
 
             try:
                 with httpx.Client(timeout=httpx.Timeout(rt, connect=ct)) as client:
-                    resp = client.post(endpoint, json=payload)
+                    resp = client.post(endpoint, headers=headers, json=payload)
                 if not resp.is_success:
                     logger.warning("DotsOCR 第%d页 HTTP %d", page_idx + 1, resp.status_code)
                     continue

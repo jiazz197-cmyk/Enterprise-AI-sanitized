@@ -94,16 +94,18 @@ class ContextCompressor:
         temperature: float = 0.3,
         max_tokens: int = 1024,
     ):
-        """base_url defaults to QWEN3_6_35B; model defaults to QWEN3_6_35B_MODEL."""
+        """base_url defaults to PRIMARY_LLM; model defaults to PRIMARY_LLM_MODEL."""
         self.conversation_repo = conversation_repo
-        self.base_url = base_url or settings.QWEN3_6_35B_API_URL
-        self.model_name = model_name if model_name is not None else settings.QWEN3_6_35B_MODEL
+        self.base_url = base_url or settings.PRIMARY_LLM_API_URL
+        self.model_name = model_name if model_name is not None else settings.PRIMARY_LLM_MODEL
         self.temperature = temperature
         self.max_tokens = max_tokens
 
         self.llm = ChatOpenAI(
             base_url=self.base_url,
-            api_key="not-needed",
+            # Local vLLM leaves the key empty → "not-needed"; external
+            # providers set PRIMARY_LLM_API_KEY.
+            api_key=settings.PRIMARY_LLM_API_KEY or "not-needed",
             model=self.model_name,
             temperature=self.temperature,
             max_tokens=self.max_tokens,
@@ -202,11 +204,11 @@ class ContextCompressor:
             if _is_upstream_html_response(e):
                 logger.error(
                     "Context compression: upstream LLM URL returned HTML (not JSON). "
-                    "Check QWEN3_6_35B_API_URL and reverse proxy: /llm/... must route to the "
+                    "Check PRIMARY_LLM_API_URL and reverse proxy: /llm/... must route to the "
                     "inference service (e.g. vLLM), not a web UI."
                 )
                 raise LlmEndpointMisconfiguredError(
-                    "LLM 接口返回了网页而非 API 结果。请检查 QWEN3_6_35B_API_URL 与 Nginx/网关："
+                    "LLM 接口返回了网页而非 API 结果。请检查 PRIMARY_LLM_API_URL 与 Nginx/网关："
                     "路径需指向 OpenAI 兼容的推理服务（如 vLLM）。"
                 ) from e
 
@@ -233,7 +235,7 @@ class ContextCompressor:
 
             retry_llm = ChatOpenAI(
                 base_url=self.base_url,
-                api_key="not-needed",
+                api_key=settings.PRIMARY_LLM_API_KEY or "not-needed",
                 model=self.model_name,
                 temperature=self.temperature,
                 max_tokens=retry_max_tokens,

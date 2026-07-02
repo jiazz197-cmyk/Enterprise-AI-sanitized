@@ -160,9 +160,11 @@ async def fetch_user_queries(conversation_id: str, limit: int = 20) -> List[str]
 
 def _build_summary_llm() -> ChatOpenAI:
     return ChatOpenAI(
-        base_url=settings.QWEN3_8B_API_URL,
-        api_key="not-needed",
-        model=settings.QWEN3_8B_MODEL,
+        base_url=settings.SECONDARY_LLM_API_URL,
+        # Local vLLM leaves the key empty → "not-needed"; external
+        # providers set SECONDARY_LLM_API_KEY.
+        api_key=settings.SECONDARY_LLM_API_KEY or "not-needed",
+        model=settings.SECONDARY_LLM_MODEL,
         temperature=0.7,
         max_tokens=1024,
         extra_body={"chat_template_kwargs": {"enable_thinking": False}},

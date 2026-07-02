@@ -20,9 +20,10 @@ def _no_think_extra_body() -> dict:
 def make_keyword_llm(temperature: float = 0.7, max_tokens: int = 512) -> ChatOpenAI:
     """Qwen3-8B for search-keyword extraction (thinking disabled)."""
     return ChatOpenAI(
-        base_url=settings.QWEN3_8B_API_URL,
-        api_key="not-needed",
-        model=settings.QWEN3_8B_MODEL,
+        base_url=settings.SECONDARY_LLM_API_URL,
+        # Local vLLM leaves the key empty → "not-needed"; external providers set SECONDARY_LLM_API_KEY.
+        api_key=settings.SECONDARY_LLM_API_KEY or "not-needed",
+        model=settings.SECONDARY_LLM_MODEL,
         temperature=temperature,
         max_tokens=max_tokens,
         extra_body=_no_think_extra_body(),
@@ -32,9 +33,9 @@ def make_keyword_llm(temperature: float = 0.7, max_tokens: int = 512) -> ChatOpe
 def make_intent_llm(temperature: float = 0.7, max_tokens: int = 512) -> ChatOpenAI:
     """Qwen3-8B for intent enhancement (thinking disabled)."""
     return ChatOpenAI(
-        base_url=settings.QWEN3_8B_API_URL,
-        api_key="not-needed",
-        model=settings.QWEN3_8B_MODEL,
+        base_url=settings.SECONDARY_LLM_API_URL,
+        api_key=settings.SECONDARY_LLM_API_KEY or "not-needed",
+        model=settings.SECONDARY_LLM_MODEL,
         temperature=temperature,
         max_tokens=max_tokens,
         extra_body=_no_think_extra_body(),
@@ -48,9 +49,9 @@ def make_answer_llm(temperature: float = 0.7) -> ChatOpenAI:
     ``ThinkStreamFilter`` before tokens reach the user.
     """
     return ChatOpenAI(
-        base_url=settings.QWEN3_6_35B_API_URL,
-        api_key="not-needed",
-        model=settings.QWEN3_6_35B_MODEL,
+        base_url=settings.PRIMARY_LLM_API_URL,
+        api_key=settings.PRIMARY_LLM_API_KEY or "not-needed",
+        model=settings.PRIMARY_LLM_MODEL,
         temperature=temperature,
         streaming=True,
     )

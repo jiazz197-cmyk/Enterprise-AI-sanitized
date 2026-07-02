@@ -329,7 +329,6 @@ class Settings(BaseSettings, metaclass=SingletonModelMeta):
 
     OCR_PDFTEXT_ENABLED: bool = Field(True, env="OCR_PDFTEXT_ENABLED")
     OCR_PDFTEXT_TIMEOUT: int = Field(30, ge=5, le=120, env="OCR_PDFTEXT_TIMEOUT")
-    OCR_DOTSOCR_MAX_TOKENS: int = Field(4096, ge=1024, le=16384, env="OCR_DOTSOCR_MAX_TOKENS")
 
     HTTP_CLIENT_TIMEOUT: float = Field(30.0, env="HTTP_CLIENT_TIMEOUT")
     HTTP_CLIENT_MAX_CONNECTIONS: int = Field(100, env="HTTP_CLIENT_MAX_CONNECTIONS")
@@ -420,26 +419,31 @@ class Settings(BaseSettings, metaclass=SingletonModelMeta):
     BGE_M3_TOKENIZER_NAME: str = Field("BAAI/bge-m3", env="BGE_M3_TOKENIZER_NAME")
     
     RERANKER_API_URL: str = Field("http://localhost:8003/v1/rerank", env="RERANKER_API_URL")
-    
-    DOTS_OCR_ENDPOINT: str = Field("http://localhost:8001/v1/chat/completions", env="DOTS_OCR_ENDPOINT")
-    
+
     LOCAL_MODEL_GPU_DEVICE: int = Field(3, env="LOCAL_MODEL_GPU_DEVICE")
 
-    QWEN3_8B_API_URL: str = Field("http://localhost:80/llm/qwen8b/v1", env="QWEN3_8B_API_URL")
-    QWEN3_8B_MODEL: str = Field(
-        "Qwen/Qwen3-8B-FP8",
-        env="QWEN3_8B_MODEL",
-        description="Served model id for Qwen3-8B (keyword extraction / intent / summary).",
-    )
-    QWEN3_6_35B_API_URL: str = Field(
+    # ── LLM / OCR models (all OpenAI-compatible chat-completions) ──────────
+    # Each group carries API_URL (base), MODEL (served id) and API_KEY
+    # (provider auth). Local vLLM leaves API_KEY empty — resolved to
+    # "not-needed" at the ChatOpenAI call site; external providers
+    # (DeepSeek, Moonshot, Together, OpenAI, …) set API_KEY and point
+    # API_URL at the provider's …/v1 root.
+
+    # Primary LLM — the larger model (was Qwen3.6-35B). Powers remark
+    # interpretation and context compression.
+    PRIMARY_LLM_API_URL: str = Field(
         "http://localhost:80/llm/qwen36b/v1",
-        env="QWEN3_6_35B_API_URL",
-        description="OpenAI-compatible API root (…/v1) for Qwen3.6-35B; proxy must target vLLM, not a web UI.",
+        env="PRIMARY_LLM_API_URL",
+        description="OpenAI-compatible API root (…/v1) for the primary LLM. Proxy must target vLLM, not Dify/Next static routes.",
     )
-    QWEN3_6_35B_MODEL: str = Field(
+    PRIMARY_LLM_MODEL: str = Field(
         "/models/Qwen3.6-35B-A3B",
-        env="QWEN3_6_35B_MODEL",
-        description="Served model id (GET /v1/models on the same base as QWEN3_6_35B_API_URL). vLLM often uses path-style ids, not Hub names.",
+        env="PRIMARY_LLM_MODEL",
+        description="Served model id (GET /v1/models on the same base as PRIMARY_LLM_API_URL). vLLM often uses path-style ids, not Hub names.",
+    )
+    PRIMARY_LLM_API_KEY: Optional[str] = Field(
+        default=None, env="PRIMARY_LLM_API_KEY",
+        description="API key for the primary LLM. Leave empty for local unauthenticated vLLM; required for external providers.",
     )
 
     # Web search backend for the conversation workflow (replaces the Dify SearXNG plugin).
@@ -460,6 +464,58 @@ class Settings(BaseSettings, metaclass=SingletonModelMeta):
     CONVERSATION_RETRIEVAL_MAX_WORKERS: int = Field(
         8, ge=1, env="CONVERSATION_RETRIEVAL_MAX_WORKERS",
         description="Dedicated thread pool size for blocking RAG retrieval in the conversation workflow.",
+    )
+
+    # Secondary LLM — the smaller model (was Qwen3-8B). Powers chat-summary.
+    SECONDARY_LLM_API_URL: str = Field(
+        "http://localhost:80/llm/qwen8b/v1",
+        env="SECONDARY_LLM_API_URL",
+        description="OpenAI-compatible API root (…/v1) for the secondary LLM.",
+    )
+    SECONDARY_LLM_MODEL: str = Field(
+        "Qwen/Qwen3-8B-FP8",
+        env="SECONDARY_LLM_MODEL",
+        description="Served model id for the secondary LLM (GET /v1/models).",
+    )
+    SECONDARY_LLM_API_KEY: Optional[str] = Field(
+        default=None, env="SECONDARY_LLM_API_KEY",
+        description="API key for the secondary LLM. Leave empty for local vLLM; required for external providers.",
+    )
+
+    # OCR model — vision chat-completions endpoint (was DotsOCR).
+    OCR_MODEL_API_URL: str = Field(
+        "http://localhost:80/ocr/dotsocr/v1/chat/completions",
+        env="OCR_MODEL_API_URL",
+        description="OpenAI-compatible chat/completions URL for the OCR vision model.",
+    )
+    OCR_MODEL_NAME: str = Field(
+        "rednote-hilab/dots.ocr",
+        env="OCR_MODEL_NAME",
+        description="Model id sent in the OCR chat-completions payload.",
+    )
+    OCR_MODEL_API_KEY: Optional[str] = Field(
+        default=None, env="OCR_MODEL_API_KEY",
+        description="API key for the OCR model. Leave empty for local unauthenticated endpoint; sent as Bearer token when set.",
+    )
+    OCR_MODEL_MAX_TOKENS: int = Field(4096, ge=1024, le=16384, env="OCR_MODEL_MAX_TOKENS")
+
+    # ── Remark LLM interpreter (spec sheet field adjustment) ───────────────
+    # When enabled, a remark found in the parsed spec content is sent to the
+    # primary LLM to produce {canonical_field: adjusted_value} overrides.
+    # Any failure (no model service, timeout, bad output) degrades gracefully
+    # to the original pipeline behavior — this flag only gates the attempt.
+    REMARK_LLM_INTERPRETER_ENABLED: bool = Field(
+        True,
+        env="REMARK_LLM_INTERPRETER_ENABLED",
+        description="Enable remark → field-adjustment in spec parsing (uses the primary LLM). Failures degrade gracefully.",
+    )
+    REMARK_LLM_REQUEST_TIMEOUT: float = Field(
+        30.0, env="REMARK_LLM_REQUEST_TIMEOUT",
+        description="Per-request timeout (seconds) for the remark LLM call.",
+    )
+    REMARK_LLM_MAX_TOKENS: int = Field(
+        512, env="REMARK_LLM_MAX_TOKENS",
+        description="Max output tokens for the remark LLM call.",
     )
 
     N8N_BASE_URL: str = Field("http://localhost:5678", env="N8N_BASE_URL")

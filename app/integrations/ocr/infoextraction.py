@@ -43,6 +43,15 @@ def close_sync_ocr_client() -> None:
         _sync_ocr_client = None
 
 
+def _ocr_headers() -> dict:
+    """Headers for the OCR chat-completions call. Bearer token only when an
+    API key is configured (local vLLM has none)."""
+    headers = {"Content-Type": "application/json"}
+    if settings.OCR_MODEL_API_KEY:
+        headers["Authorization"] = f"Bearer {settings.OCR_MODEL_API_KEY}"
+    return headers
+
+
 def _ocr_payload(image_url: str) -> dict:
     prompt_text = (
         "Please output the layout information from the PDF image, including each layout element's bbox, "
@@ -61,7 +70,7 @@ def _ocr_payload(image_url: str) -> dict:
         "5. Final Output: The entire output must be a single JSON object.\n"
     )
     return {
-        "model": "rednote-hilab/dots.ocr",
+        "model": settings.OCR_MODEL_NAME,
         "messages": [
             {
                 "role": "user",
@@ -87,7 +96,7 @@ def _parse_ocr_response(response: httpx.Response) -> List[Dict[str, Any]]:
 
 async def async_extract_layout_info(
     image_url: str,
-    api_url: str = "http://localhost:80/ocr/dotsocr/v1/chat/completions",
+    api_url: Optional[str] = None,
     cancel_checker: Optional[Callable[[], bool]] = None,
     connect_timeout: Optional[float] = None,
     read_timeout: Optional[float] = None,
@@ -98,10 +107,11 @@ async def async_extract_layout_info(
 
         raise QuotationPipelineCancelledError("任务已取消")
 
+    api_url = api_url or settings.OCR_MODEL_API_URL
     ct = connect_timeout if connect_timeout is not None else settings.OCR_HTTP_CONNECT_TIMEOUT
     rt = read_timeout if read_timeout is not None else settings.OCR_HTTP_READ_TIMEOUT
 
-    headers = {"Content-Type": "application/json"}
+    headers = _ocr_headers()
     payload = _ocr_payload(image_url)
 
     try:
@@ -118,7 +128,7 @@ async def async_extract_layout_info(
 
 def extract_layout_info(
     image_url: str,
-    api_url: str = "http://localhost:80/ocr/dotsocr/v1/chat/completions",
+    api_url: Optional[str] = None,
     cancel_checker: Optional[Callable[[], bool]] = None,
     connect_timeout: Optional[float] = None,
     read_timeout: Optional[float] = None,
@@ -129,10 +139,11 @@ def extract_layout_info(
 
         raise QuotationPipelineCancelledError("任务已取消")
 
+    api_url = api_url or settings.OCR_MODEL_API_URL
     ct = connect_timeout if connect_timeout is not None else settings.OCR_HTTP_CONNECT_TIMEOUT
     rt = read_timeout if read_timeout is not None else settings.OCR_HTTP_READ_TIMEOUT
 
-    headers = {"Content-Type": "application/json"}
+    headers = _ocr_headers()
     payload = _ocr_payload(image_url)
 
     try:
@@ -340,7 +351,7 @@ def validate_extracted_info(info: Dict[str, Any]) -> tuple[bool, List[str]]:
     return is_valid, empty_sections
 
 
-def extract_info_with_retry(image_url: str, api_url: str = "http://localhost:80/ocr/dotsocr/v1/chat/completions", max_retries: int = 3) -> Dict[str, Any]:
+def extract_info_with_retry(image_url: str, api_url: Optional[str] = None, max_retries: int = 3) -> Dict[str, Any]:
     """Retry until validate_extracted_info passes or raise ValueError with Chinese message."""
     attempt = 0
     last_empty_sections = []

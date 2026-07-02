@@ -12,6 +12,8 @@ Supports two OCR formats:
 
 import re
 
+from app.domain.quotation.remark_adjustment import RAW_REMARKS_RE  # single source of truth
+
 
 def parse_spec_sheet(text: str) -> dict:
     """Parse OCR spec sheet text into a structured dict of raw parameters."""
@@ -503,7 +505,7 @@ def _parse_remarks(text: str) -> dict:
     """Extract supplementary parameters from the Remarks section."""
     params = {}
 
-    m = re.search(r'Remarks\s*:\s*\n(.+?)(?:\n\s*\n|\n\s*Ver\.|\Z)', text, re.DOTALL | re.IGNORECASE)
+    m = RAW_REMARKS_RE.search(text)
     if not m:
         return params
 

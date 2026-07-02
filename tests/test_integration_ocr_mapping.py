@@ -6,7 +6,7 @@ Replicates the exact OCR prefix used by
     PDF bytes
       └─► pdf2image.pdf_to_single_image(page_number=1)
             └─► image2url.upload_file_to_minio
-                  └─► infoextraction.extract_layout_info(image_url, DOTS_OCR_ENDPOINT)
+                  └─► infoextraction.extract_layout_info(image_url, OCR_MODEL_API_URL)
                         └─► infoextraction.extract_info(content)
                               └─► SpecificationMapping.generate_keywords_payload()
 
@@ -177,7 +177,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--ocr-endpoint",
         type=str,
         default=None,
-        help=f"Override DOTS_OCR_ENDPOINT (default from settings: {settings.DOTS_OCR_ENDPOINT})",
+        help=f"Override OCR_MODEL_API_URL (default from settings: {settings.OCR_MODEL_API_URL})",
     )
     parser.add_argument(
         "--save-raw",
@@ -206,7 +206,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[error] PDF not found: {args.pdf}", file=sys.stderr)
         return 2
 
-    endpoint = args.ocr_endpoint or settings.DOTS_OCR_ENDPOINT
+    endpoint = args.ocr_endpoint or settings.OCR_MODEL_API_URL
 
     _print_header(f"Integration test: {args.pdf}")
     print(f"OCR endpoint : {endpoint}")

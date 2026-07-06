@@ -9,7 +9,7 @@ from urllib.parse import unquote
 from app.core.logging import get_logger
 from app.core.security import normalize_self_user_identifier
 from app.ports.contracts.identity import CurrentUserPort, ROLE_SUPERUSER, ROLE_ADMIN
-from app.ports.domains.context_compression import ContextCompressorPort
+from app.ports.outbound.context_compression import ContextCompressorPort
 
 logger = get_logger("context_compression.uc")
 

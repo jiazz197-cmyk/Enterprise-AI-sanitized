@@ -5,7 +5,7 @@ from __future__ import annotations
 from app.core.exceptions import NotFoundError, PermissionDeniedError
 from app.core.logging import get_logger
 from app.ports.contracts.identity import CurrentUserPort
-from app.ports.domains.auth import UserRepositoryPort
+from app.ports.outbound.auth import UserRepositoryPort
 from app.ports.dto.auth import UpdatePagePermissionsCommand, UpdateUserRoleCommand, UserDTO
 
 logger = get_logger("auth.users")

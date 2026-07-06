@@ -68,12 +68,16 @@ Route (app/api/v1) ──creates──▶ Adapter ──implements──▶ Port
 |-------|----------|----------------|----------|
 | **Route** | `app/api/v1/` | Parse/validate input, `Depends`, **construct Adapters + UseCase**, map result to HTTP response | import `app.integrations` (for remediated routes); hold long business flows |
 | **UseCase** | `app/usecases/` | Orchestrate business steps; receives Ports via constructor; returns stable command/query results | import `app.integrations`, ORM, or HTTP clients |
-| **Port** | `app/ports/` (`dto`, `contracts`, `domains`) | `Protocol` contracts + pure DTOs | do IO; reference ORM entities in signatures |
+| **Port** | `app/ports/` (`dto`, `contracts`, `outbound`) | `Protocol` contracts + pure DTOs | do IO; reference ORM entities in signatures |
 | **Adapter** | `app/adapters/` | Implement Port by translating to `app/integrations/*`, ORM, config | contain whole business flows (those stay in UseCase) |
 | **Domain** | `app/domain/` | IO-free pure functions + shared exceptions | — |
 | **Integration** | `app/integrations/` | Third-party/HTTP/SQL implementation details | be imported by UseCase or (remediated) Route |
 
-`app/ports` split: `dto/` = pure data classes; `contracts/` = cross-business Protocols (`TaskStatePort`, `CurrentUserPort`, `RequestMetricsPort`); `domains/` = per-business-line outbound Protocols. **Import Ports from their subpackage explicitly** — `app/ports/__init__.py` does not re-export symbols.
+`app/ports` split: `dto/` = pure data classes; `contracts/` = cross-business Protocols (`TaskStatePort`, `CurrentUserPort`, `RequestMetricsPort`); `outbound/` = per-business-line driven (outbound) Protocols (`QuotationTaskRepoPort`, `FileManagerPort`, …). **Import Ports from their subpackage explicitly** — `app/ports/__init__.py` does not re-export symbols.
+
+`app/schemas/` vs `app/ports/dto/`: `app/schemas/` holds **HTTP wire models** (pydantic request/response, under `endpoints/` and `platform/`); `app/ports/dto/` holds **Port-boundary pure data classes** (read models, command/result DTOs). The two do not import each other — wire models stop at the Route layer, Port DTOs cross the UseCase↔Adapter boundary.
+
+`__init__.py` convention: package `__init__.py` files hold **only a docstring** — no convenience re-exports; import symbols from their explicit submodule path (e.g. `from app.ports.outbound.quotation import QuotationTaskRepoPort`). Two deliberate exceptions: lazy `__getattr__` loaders that defer heavy optional deps (`app/adapters/quotation/__init__.py`, `app/adapters/conversation/__init__.py`) and ORM model aggregation for SQLAlchemy metadata registration (`app/models/orm/platform/__init__.py`).
 
 When adding a feature: add a Port method/new Port → add Adapter → adjust UseCase → wire in Route. The Router is the **composition root** (it `new`s Adapters and injects them into the UseCase). For multi-Adapter flows, prefer a factory like `app/adapters/quotation/deps.py:build_execute_quotation_phase1_use_case()` rather than scattering `new` across workers.
 

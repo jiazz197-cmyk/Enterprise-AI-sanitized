@@ -7,7 +7,7 @@
 | 层级 | 职责 | 路径 |
 |------|------|------|
 | Use Case | 业务流程编排（顺序、用哪些 Port、领域纯函数） | `app/usecases/quotation/` |
-| Port | 外向契约（Protocol + DTO） | `app/ports/domains/quotation.py`, `app/ports/domains/sqlserver_queries.py` |
+| Port | 外向契约（Protocol + DTO） | `app/ports/outbound/quotation.py`, `app/ports/outbound/sqlserver_queries.py` |
 | Adapter | 唯一调用 `app/integrations/...` 的边界 | `app/adapters/quotation/`, `app/adapters/sqlserver_queries.py` |
 | Domain | 无 I/O 的纯函数与共享异常 | `app/domain/quotation/` |
 | Integration | 第三方/HTTP/SQL 等实现细节 | `app/integrations/...`（仅 Adapter 引用） |

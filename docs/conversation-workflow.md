@@ -8,7 +8,7 @@
 |----|------|------|
 | Route | `app/api/v1/conversation.py` | Dify 兼容 SSE 端点；JWT 鉴权；翻译 UseCase 流事件为 SSE 字节 |
 | UseCase | `app/usecases/conversation/{run,list,rename}.py` | 记忆装载/覆盖、调工作流、持久化、列表、重命名 |
-| Port | `app/ports/domains/conversation.py`、`app/ports/dto/conversation.py` | `ConversationRepoPort`、`ConversationWorkflowPort`、`WebSearchPort`、`UserProfilePort` |
+| Port | `app/ports/outbound/conversation.py`、`app/ports/dto/conversation.py` | `ConversationRepoPort`、`ConversationWorkflowPort`、`WebSearchPort`、`UserProfilePort` |
 | Adapter | `app/adapters/conversation/` | `SqlAlchemyConversationRepoAdapter`、`TavilyWebSearchAdapter`、`LangChainConversationWorkflowAdapter`、`deps.py` |
 | Integration | `app/integrations/conversation/` | langchain LCEL 链：关键词拆分 / 问题分析 / 答案生成（流式） |
 | Domain | `app/domain/conversation/` | 纯函数：提示词常量、`<think>` 剥离、搜索结果筛选、双通记忆拼装 |

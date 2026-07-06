@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from app.ports.contracts.identity import CurrentUserPort
-from app.ports.domains.chat_summary import ChatSummaryRepoPort, UserLookupPort
+from app.ports.outbound.chat_summary import ChatSummaryRepoPort, UserLookupPort
 
 
 @dataclass

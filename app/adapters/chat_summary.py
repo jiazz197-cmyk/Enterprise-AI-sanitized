@@ -14,7 +14,7 @@ from app.integrations.Chat_message_archive.message_extractor import (
 )
 from app.models.orm.platform.user import User
 from app.ports.contracts.identity import CurrentUserPort, ROLE_SUPERUSER, ROLE_ADMIN
-from app.ports.domains.chat_summary import ChatArchivePort, ChatSummaryRepoPort, UserLookupPort
+from app.ports.outbound.chat_summary import ChatArchivePort, ChatSummaryRepoPort, UserLookupPort
 from app.ports.dto.chat_summary import ChatSummaryResult
 
 

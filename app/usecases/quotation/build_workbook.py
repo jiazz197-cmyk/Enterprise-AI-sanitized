@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Callable, Dict, Optional
 
-from app.domain.quotation import build_quotation_workbook_data
-from app.ports.domains.quotation_workbook import QuotationWorkbookRenderPort
+from app.domain.quotation.workbook import build_quotation_workbook_data
+from app.ports.outbound.quotation_workbook import QuotationWorkbookRenderPort
 from app.ports.dto.quotation_workbook import QuotationWorkbookExport
 
 

@@ -55,7 +55,7 @@ from app.domain.quotation.remark_adjustment import (  # noqa: E402
     allowed_keys_for,
     validate_and_reorganize,
 )
-from app.ports.domains.quotation import RemarkInterpreterPort  # noqa: E402
+from app.ports.outbound.quotation import RemarkInterpreterPort  # noqa: E402
 
 
 # ── fakes ───────────────────────────────────────────────────────────────

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from app.ports.domains.retriever import RetrievalQuery, RetrievalResult, RetrieverPort
+from app.ports.outbound.retriever import RetrievalQuery, RetrievalResult, RetrieverPort
 
 
 class RAGRetrieverAdapter(RetrieverPort):

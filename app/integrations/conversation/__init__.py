@@ -1,5 +1,5 @@
-"""Langchain-based conversation workflow (replaces the Dify advanced-chat app)."""
+"""Langchain-based conversation workflow (replaces the Dify advanced-chat app).
 
-from app.integrations.conversation.pipeline import ConversationPipeline
-
-__all__ = ["ConversationPipeline"]
+Import symbols from their submodules (e.g. ``app.integrations.conversation.pipeline``).
+This package does not re-export symbols.
+"""

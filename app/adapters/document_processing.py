@@ -11,7 +11,7 @@ from app.integrations.doc_processing.document_task_runner import (
     process_documents_background,
     upload_and_register_documents,
 )
-from app.ports.domains.document_processing import DocumentProcessWorkerPort, DocumentRegistrationPort
+from app.ports.outbound.document_processing import DocumentProcessWorkerPort, DocumentRegistrationPort
 
 
 class SqlAlchemyDocumentRegistrationAdapter(DocumentRegistrationPort):

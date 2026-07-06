@@ -9,7 +9,7 @@ from app.core.exceptions import ValidationError
 from app.core.logging import get_logger
 from app.ports.contracts.identity import CurrentUserPort
 from app.ports.contracts.tasking import TaskExecutionPort, TaskStatePort
-from app.ports.domains.document_processing import DocumentProcessWorkerPort, DocumentRegistrationPort
+from app.ports.outbound.document_processing import DocumentProcessWorkerPort, DocumentRegistrationPort
 
 logger = get_logger("document_processing.uc")
 

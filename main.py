@@ -70,7 +70,7 @@ def require_metrics_access(x_api_key: str | None = Header(default=None, alias="X
 def _startup_check_sqlserver_connectivity(app: FastAPI) -> None:
     """Check U8/PDM connectivity at startup without blocking service startup."""
     try:
-        from app.integrations.sqlserver import test_sqlserver_connectivity
+        from app.integrations.sqlserver.connectivity import test_sqlserver_connectivity
 
         sqlserver_checks = test_sqlserver_connectivity()
         app.state.sqlserver_connectivity = sqlserver_checks

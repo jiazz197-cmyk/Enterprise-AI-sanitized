@@ -5,7 +5,7 @@ from __future__ import annotations
 from app.core.exceptions import AuthenticationError
 from app.core.logging import get_logger
 from app.core.security import create_access_token
-from app.ports.domains.auth import PasswordHasherPort, UserRepositoryPort
+from app.ports.outbound.auth import PasswordHasherPort, UserRepositoryPort
 from app.ports.dto.auth import LoginCommand, TokenPair
 
 logger = get_logger("auth.login")

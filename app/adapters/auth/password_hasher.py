@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from app.core.security import hash_password, verify_password
-from app.ports.domains.auth import PasswordHasherPort
+from app.ports.outbound.auth import PasswordHasherPort
 
 
 class BcryptPasswordHasherAdapter(PasswordHasherPort):

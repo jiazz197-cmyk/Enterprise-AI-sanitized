@@ -40,7 +40,7 @@ from app.integrations.conversation.runtime import (
     SEM_8B,
     run_retrieval_sync,
 )
-from app.ports.domains.retriever import RetrievalQuery, RetrieverPort
+from app.ports.outbound.retriever import RetrievalQuery, RetrieverPort
 from app.ports.dto.conversation import WorkflowContext
 
 logger = logging.getLogger(__name__)

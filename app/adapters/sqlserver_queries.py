@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Callable, Optional
 
-from app.integrations.sqlserver import run_pdm_bom_query, run_pdm_match_query, run_u8_bom_inventory_query
-from app.ports.domains.sqlserver_queries import PdmBomQueryPort, PdmMatchQueryPort, U8BomInventoryQueryPort
+from app.integrations.sqlserver.queries import run_pdm_bom_query, run_pdm_match_query, run_u8_bom_inventory_query
+from app.ports.outbound.sqlserver_queries import PdmBomQueryPort, PdmMatchQueryPort, U8BomInventoryQueryPort
 
 
 class U8BomInventoryQueryAdapter(U8BomInventoryQueryPort):

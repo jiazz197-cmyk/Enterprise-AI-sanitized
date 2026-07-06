@@ -10,7 +10,7 @@ from app.core.database import AsyncSessionLocal
 from app.core.logging import get_logger
 from app.core.time_utils import utcnow_naive
 from app.models.orm.quotation_task import QuotationTask, QuotationTaskStatus
-from app.ports.domains.quotation import QuotationTaskPurgePort, QuotationTaskRetentionPort
+from app.ports.outbound.quotation import QuotationTaskPurgePort, QuotationTaskRetentionPort
 
 logger = get_logger("quotation.retention")
 

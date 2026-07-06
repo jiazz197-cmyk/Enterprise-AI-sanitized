@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from app.core.exceptions import APIException
 from app.core.logging import get_logger
-from app.ports.domains.auth import PasswordHasherPort, UserRepositoryPort
+from app.ports.outbound.auth import PasswordHasherPort, UserRepositoryPort
 from app.ports.dto.auth import RegisterCommand
 
 logger = get_logger("auth.register")

@@ -10,7 +10,7 @@ from app.integrations.ocr.image_upload_tasks import background_image_upload_task
 from app.integrations.ocr.pdf2image import get_pdf_page_count
 from app.integrations.ocr.pdf_convert_tasks import background_pdf_convert_task
 from app.ports.contracts.executor_async import ExecutorAsyncTaskPort
-from app.ports.domains.ocr_async import ImageUploadJobPort, PdfConvertJobPort, PdfPageCountPort
+from app.ports.outbound.ocr_async import ImageUploadJobPort, PdfConvertJobPort, PdfPageCountPort
 
 
 class ExecutorManagerAsyncTaskAdapter(ExecutorAsyncTaskPort):

@@ -14,7 +14,7 @@ from app.domain.conversation.memory import (
     clean_background,
     should_override_memory,
 )
-from app.ports.domains.conversation import (
+from app.ports.outbound.conversation import (
     ConversationRepoPort,
     ConversationWorkflowPort,
     UserProfilePort,

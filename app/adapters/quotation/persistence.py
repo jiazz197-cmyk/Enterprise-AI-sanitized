@@ -23,7 +23,7 @@ from app.integrations.Quotation_Generation.quotation_task_workers import (
 from app.models.orm.file_resource import FileResource
 from app.models.orm.quotation_task import QuotationTask, QuotationTaskStatus
 from app.ports.contracts.tasking import TaskDispatchPort
-from app.ports.domains.quotation import (
+from app.ports.outbound.quotation import (
     FileStoragePort,
     QuotationApprovalSelectionPort,
     QuotationTaskRepoPort,

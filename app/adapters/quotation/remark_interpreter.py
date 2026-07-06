@@ -23,7 +23,7 @@ from app.domain.quotation.remark_adjustment import (
     allowed_keys_for,
     validate_and_reorganize,
 )
-from app.ports.domains.quotation import CancelChecker, RemarkInterpreterPort
+from app.ports.outbound.quotation import CancelChecker, RemarkInterpreterPort
 
 logger = logging.getLogger(__name__)
 

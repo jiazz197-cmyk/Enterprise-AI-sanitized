@@ -23,7 +23,7 @@
 |------|-----------|------|--------|
 | **Route** | `app/api/v1/` | 解析/校验入参、注入依赖（`Depends`）、**组装 Adapter**、**构造并调用** `UseCase`、将领域结果映射为 API 响应。 | 不应承载长业务流程、不应直接 `import app.integrations`（整改后的路由，见 `scripts/check_layered_architecture.sh`）。 |
 | **UseCase** | `app/usecases/` | **编排**业务步骤、组合规则、对调用方返回稳定的命令/查询结果。通过 **构造函数或方法参数** 接收 Port 依赖。 | 不应直接依赖 `app.integrations` 或 ORM/HTTP client 等具体实现。 |
-| **Port** | `app/ports/dto`、`app/ports/contracts`、`app/ports/domains` | **DTO** 为纯数据类；**contracts** 为跨业务 `Protocol`；**domains** 为业务线出站 `Protocol`。示例 DTO：`ChatSummaryResult`、`QuotationTaskSnapshot`（见 `app/ports/dto/`）。 | Port 不实现 IO；**domains/contracts** 的方法签名不引用 ORM 实体；身份视图用 `CurrentUserPort` 等，而非 `User` 模型。 |
+| **Port** | `app/ports/dto`、`app/ports/contracts`、`app/ports/outbound` | **DTO** 为纯数据类；**contracts** 为跨业务 `Protocol`；**domains** 为业务线出站 `Protocol`。示例 DTO：`ChatSummaryResult`、`QuotationTaskSnapshot`（见 `app/ports/dto/`）。 | Port 不实现 IO；**domains/contracts** 的方法签名不引用 ORM 实体；身份视图用 `CurrentUserPort` 等，而非 `User` 模型。 |
 | **Adapter** | `app/adapters/`（等） | **实现** Port，把一次用例里的调用**翻译**为对现有代码（如 `app.integrations/*`、ORM、配置）的调用。 | 不把整条业务流程写进 Adapter；复杂编排仍放在 UseCase。 |
 
 **依赖方向（示意）**：
@@ -53,7 +53,7 @@ Route  ──creates──▶  Adapter  ──implements──▶  Port
 
 - **`app/ports/dto/`**：仅数据类（如 `TaskManagerTaskSnapshot`、`FileRecordDTO`、`QuotationTaskSnapshot`、`ChatSummaryResult`），无 `Protocol`。
 - **`app/ports/contracts/`**：跨业务复用的 `Protocol`（如 `TaskStatePort`、`ExecutorAsyncTaskPort`、`CurrentUserPort`、`RequestMetricsPort`）。
-- **`app/ports/domains/`**：按业务线的出站 `Protocol`（如 `app/ports/domains/chat_summary.py` 中的 `UserLookupPort` / `ChatArchivePort`，`domains/quotation.py` 中的 `FileStoragePort` / `QuotationTaskRepoPort`，`domains/ocr_async.py` 等）。**请从子包显式 import**；`app/ports/__init__.py` 不再做符号聚合。
+- **`app/ports/outbound/`**：按业务线的出站 `Protocol`（如 `app/ports/outbound/chat_summary.py` 中的 `UserLookupPort` / `ChatArchivePort`，`domains/quotation.py` 中的 `FileStoragePort` / `QuotationTaskRepoPort`，`domains/ocr_async.py` 等）。**请从子包显式 import**；`app/ports/__init__.py` 不再做符号聚合。
 - **UseCase 示例**：`app/usecases/chat_summary/create_chat_summary.py` 中 `CreateChatSummaryUseCase` 依赖 `domains.chat_summary` 的 Port 与 `contracts.identity.CurrentUserPort`。
 - **Adapter 示例**：`app/adapters/chat_summary.py` 实现上述 Port，内部再调用 `app.integrations` 与 ORM。
 

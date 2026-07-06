@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import Any
 
 from app.core.exceptions import ExternalServiceError
-from app.integrations.context_compression import (
+from app.integrations.context_compression.context_compressor import (
     LlmEndpointMisconfiguredError,
     compress_context,
 )
-from app.ports.domains.context_compression import ContextCompressorPort
-from app.ports.domains.conversation import ConversationRepoPort
+from app.ports.outbound.context_compression import ContextCompressorPort
+from app.ports.outbound.conversation import ConversationRepoPort
 
 
 class IntegrationContextCompressorAdapter(ContextCompressorPort):

@@ -6,16 +6,13 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Set
 
 from app.core.logging import get_logger
-from app.domain.quotation import (
-    Phase2Result,
-    QuotationPipelineCancelledError,
-    QuotationPipelineError,
-    convert_partids_to_u8_codes,
-    summarize_partid_list,
-)
-from app.ports.domains.quotation import CancelChecker, ProgressCallback
+from app.domain.quotation.exceptions import QuotationPipelineCancelledError, QuotationPipelineError
+from app.domain.quotation.partid_mapping import convert_partids_to_u8_codes
+from app.domain.quotation.pdm_result import summarize_partid_list
+from app.domain.quotation.results import Phase2Result
+from app.ports.outbound.quotation import CancelChecker, ProgressCallback
 from app.domain.exceptions import QueryCancelledError
-from app.ports.domains.sqlserver_queries import U8BomInventoryQueryPort
+from app.ports.outbound.sqlserver_queries import U8BomInventoryQueryPort
 from app.ports.dto.sqlserver_queries import U8BomInventoryCommand
 from app.usecases.quotation._utils import response_to_dict
 
@@ -102,7 +99,7 @@ class ExecuteQuotationPhase2UseCase:
         cb: ProgressCallback,
     ) -> Phase2Result:
         """普通模式：一次查询后分组"""
-        from app.domain.quotation import group_u8_result_by_type
+        from app.domain.quotation.u8_grouping import group_u8_result_by_type
 
         parent_inv_codes = ",".join(converted_u8_codes)
         u8_summary = summarize_partid_list(converted_u8_codes)

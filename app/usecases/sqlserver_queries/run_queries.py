@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from app.ports.domains.sqlserver_queries import PdmBomQueryPort, PdmMatchQueryPort, U8BomInventoryQueryPort
+from app.ports.outbound.sqlserver_queries import PdmBomQueryPort, PdmMatchQueryPort, U8BomInventoryQueryPort
 from app.ports.dto.sqlserver_queries import PdmBomCommand, PdmMatchCommand, U8BomInventoryCommand
 
 

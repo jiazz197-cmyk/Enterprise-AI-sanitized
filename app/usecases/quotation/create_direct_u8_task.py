@@ -9,7 +9,7 @@ from uuid import uuid4
 from app.core.exceptions import APIException
 from app.core.logging import get_logger
 from app.ports.contracts.tasking import TaskDispatchPort, TaskExecutionPort, TaskStatePort
-from app.ports.domains.quotation import FileStoragePort, QuotationTaskRepoPort
+from app.ports.outbound.quotation import FileStoragePort, QuotationTaskRepoPort
 
 logger = get_logger("quotation.create_direct_u8_task")
 

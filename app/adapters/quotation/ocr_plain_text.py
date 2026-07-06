@@ -14,7 +14,7 @@ import httpx
 from app.core.config import settings
 from app.integrations.ocr.pdf2image import pdf_to_images
 from app.integrations.ocr.text_cleaning import clean_dotsocr_text, pdftotext_has_key_fields
-from app.ports.domains.quotation import CancelChecker, OcrPlainTextPort, OcrTextExtractionResult
+from app.ports.outbound.quotation import CancelChecker, OcrPlainTextPort, OcrTextExtractionResult
 
 logger = logging.getLogger(__name__)
 

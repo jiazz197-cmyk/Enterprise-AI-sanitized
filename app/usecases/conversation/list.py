@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
 
-from app.ports.domains.conversation import ConversationRepoPort
+from app.ports.outbound.conversation import ConversationRepoPort
 from app.ports.dto.conversation import ConversationListItem, ConversationMessage
 
 

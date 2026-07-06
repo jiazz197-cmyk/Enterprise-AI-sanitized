@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from app.ports.domains.quotation import QuotationTaskPurgePort
+from app.ports.outbound.quotation import QuotationTaskPurgePort
 
 
 class PurgeQuotationTaskUseCase:

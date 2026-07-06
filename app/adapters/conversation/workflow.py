@@ -10,11 +10,11 @@ from __future__ import annotations
 from typing import AsyncIterator
 
 from app.integrations.conversation.pipeline import ConversationPipeline
-from app.ports.domains.conversation import (
+from app.ports.outbound.conversation import (
     ConversationWorkflowPort,
     WebSearchPort,
 )
-from app.ports.domains.retriever import RetrieverPort
+from app.ports.outbound.retriever import RetrieverPort
 from app.ports.dto.conversation import WorkflowContext
 
 

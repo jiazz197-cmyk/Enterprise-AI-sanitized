@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Dict
 
 from app.core.exceptions import APIException
-from app.ports.domains.quotation import QuotationTaskRepoPort
+from app.ports.outbound.quotation import QuotationTaskRepoPort
 from app.usecases.quotation.purge import purge_quotation_task
 
 _TERMINAL_STATUSES = {"completed", "failed", "cancelled"}

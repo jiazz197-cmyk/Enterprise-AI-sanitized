@@ -13,7 +13,7 @@ from app.adapters.quotation._xlsx_utils import (
     normalize_row,
     unit_price_column_index,
 )
-from app.ports.domains.quotation_workbook import QuotationWorkbookRenderPort
+from app.ports.outbound.quotation_workbook import QuotationWorkbookRenderPort
 from app.ports.dto.quotation_workbook import QuotationWorkbookData, QuotationWorkbookExport
 
 _EXCLUDED_ROW_KEYS: frozenset[str] = frozenset({

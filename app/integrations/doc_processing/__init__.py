@@ -1,14 +1,5 @@
-from .pipeline import DocumentProcessingPipeline
-from .text_splitter import (
-    TagGenerator,
-    TokenAwareTextSplitter,
-    ExcelHeaderPreservingSplitter,
-)
+"""Document processing integration: chunking, embedding, pipeline.
 
-__all__ = [
-    "DocumentProcessingPipeline",
-    "TagGenerator",
-    "TokenAwareTextSplitter",
-    "ExcelHeaderPreservingSplitter",
-]
-
+Import symbols from their submodules (e.g. ``app.integrations.doc_processing.pipeline``).
+This package does not re-export symbols.
+"""

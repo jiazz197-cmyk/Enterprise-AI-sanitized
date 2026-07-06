@@ -252,7 +252,7 @@ flowchart TB
 
 | 类型 | 路径 |
 |------|------|
-| Port（分层） | `app/ports/dto/`（数据类）、`app/ports/contracts/`（通用 `Protocol`）、`app/ports/domains/`（业务线 `Protocol`，如 `document_processing.py`、`file_manager.py`、`ocr_async.py`、`context_compression.py`、`closing_form.py`、`sqlserver_queries.py` 等） |
+| Port（分层） | `app/ports/dto/`（数据类）、`app/ports/contracts/`（通用 `Protocol`）、`app/ports/outbound/`（业务线 `Protocol`，如 `document_processing.py`、`file_manager.py`、`ocr_async.py`、`context_compression.py`、`closing_form.py`、`sqlserver_queries.py` 等） |
 | Adapter | `app/adapters/`（含 `tasking.py`、`ocr_executor_jobs.py`、`document_processing.py`、`file_manager.py`、`context_compression.py`、`closing_form.py`、`sqlserver_queries.py`） |
 | UseCase | `app/usecases/async_executor/`、`document_processing/`、`file_manager/`、`context_compression/`、`closing_form/`、`sqlserver_queries/`、以及 `quotation/`、`chat_summary/` |
 | 分层检查 | `scripts/check_layered_architecture.sh` |

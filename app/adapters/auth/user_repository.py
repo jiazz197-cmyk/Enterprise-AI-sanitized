@@ -9,7 +9,7 @@ from sqlalchemy import select
 
 from app.core.database import AsyncSessionLocal
 from app.core.rbac_queries import load_user_permissions
-from app.ports.domains.auth import UserRepositoryPort
+from app.ports.outbound.auth import UserRepositoryPort
 from app.ports.dto.auth import UserDTO
 
 

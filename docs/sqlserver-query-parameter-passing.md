@@ -156,7 +156,7 @@ class RunU8BomInventoryQueryUseCase:
         └── _u8.run(payload)
 ```
 
-**Port 定义**（`app/ports/domains/sqlserver_queries.py`）：
+**Port 定义**（`app/ports/outbound/sqlserver_queries.py`）：
 
 ```python
 class U8BomInventoryQueryPort(Protocol):

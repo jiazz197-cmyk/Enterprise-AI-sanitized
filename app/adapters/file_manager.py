@@ -19,7 +19,7 @@ from app.core.storage import MinioUploadError
 from app.domain.file_manager.naming import generate_unique_filename
 from app.models.orm.file_resource import FileResource
 from app.ports.contracts.identity import CurrentUserPort
-from app.ports.domains.file_manager import FileManagerPort
+from app.ports.outbound.file_manager import FileManagerPort
 from app.ports.dto.files import FileRecordDTO
 
 logger = get_logger("file_manager")

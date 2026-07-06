@@ -11,7 +11,7 @@ from app.core.exceptions import APIException
 from app.core.logging import get_logger
 from app.core.time_utils import utcnow_naive
 from app.ports.contracts.tasking import TaskDispatchPort, TaskExecutionPort, TaskStatePort
-from app.ports.domains.quotation import FileStoragePort, QuotationTaskRepoPort, QuotationTaskRetentionPort
+from app.ports.outbound.quotation import FileStoragePort, QuotationTaskRepoPort, QuotationTaskRetentionPort
 
 logger = get_logger("quotation.create_task")
 

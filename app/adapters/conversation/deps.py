@@ -11,13 +11,13 @@ from app.adapters.conversation.web_search import TavilyWebSearchAdapter
 from app.adapters.conversation.workflow import LangChainConversationWorkflowAdapter
 from app.adapters.retriever import RAGRetrieverAdapter
 from app.adapters.chat_summary import UserProfileSummaryRepoAdapter
-from app.ports.domains.conversation import (
+from app.ports.outbound.conversation import (
     ConversationRepoPort,
     ConversationWorkflowPort,
     UserProfilePort,
     WebSearchPort,
 )
-from app.ports.domains.retriever import RetrieverPort
+from app.ports.outbound.retriever import RetrieverPort
 
 
 def build_conversation_repo() -> ConversationRepoPort:

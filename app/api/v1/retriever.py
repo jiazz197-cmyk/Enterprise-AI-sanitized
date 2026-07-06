@@ -5,7 +5,7 @@ from app.core.dependencies import get_rag_instance
 from app.core.config import settings
 from app.core.security import get_current_user
 from app.ports.contracts.identity import CurrentUserPort, ROLE_SUPERUSER
-from app.ports.domains.retriever import RetrievalQuery
+from app.ports.outbound.retriever import RetrievalQuery
 from app.adapters.retriever import RAGRetrieverAdapter
 from app.ragsystem import chart_analyze
 from app.schemas.base import ChatRequest, ChartRequest

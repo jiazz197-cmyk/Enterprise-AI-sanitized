@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from app.adapters.quotation.ocr_plain_text import OcrPlainTextAdapter
+from app.adapters.quotation.remark_interpreter import QwenRemarkInterpreter
 from app.adapters.quotation.spec_parse_convert import SpecParseAndConvertAdapter
 from app.adapters.quotation.pdf_raster import PdfFirstPageRasterAdapter
 from app.adapters.quotation.temp_object_storage import QuotationTempObjectStorageAdapter
@@ -16,7 +17,7 @@ from app.usecases.quotation.execute_phase2 import ExecuteQuotationPhase2UseCase
 def build_execute_quotation_phase1_use_case() -> ExecuteQuotationPhase1UseCase:
     return ExecuteQuotationPhase1UseCase(
         ocr_text=OcrPlainTextAdapter(),
-        spec_parse=SpecParseAndConvertAdapter(),
+        spec_parse=SpecParseAndConvertAdapter(remark_interpreter=QwenRemarkInterpreter()),
         pdm_match=PdmMatchQueryAdapter(),
         pdf_raster=PdfFirstPageRasterAdapter(),
         temp_storage=QuotationTempObjectStorageAdapter(),

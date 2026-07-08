@@ -14,3 +14,6 @@ CHAT_SUMMARY = "/chat-summary"
 CLOSING_FORM = "/closing-form"
 CONTEXT_COMPRESSION = "/context-compression"
 SQLSERVER = "/sqlserver"
+# Conversation endpoints mimic Dify's wire format (/chat-messages, /conversations,
+# /messages) and must sit directly under /api/v1, so they use an empty prefix.
+CONVERSATION = ""

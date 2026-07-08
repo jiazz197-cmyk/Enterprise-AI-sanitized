@@ -8,6 +8,7 @@ from app.api.v1 import (
     chat_summary,
     closing_form,
     context_compression,
+    conversation,
     document_processing,
     example,
     file_manager,
@@ -69,6 +70,9 @@ def build_api_router() -> APIRouter:
         [t.CONTEXT_COMPRESSION],
     )
     _mount(r, sqlserver_queries.router, p.SQLSERVER, [t.SQLSERVER_QUERY])
+
+    # Conversation: Dify-compatible chat endpoints mounted directly under /api/v1.
+    _mount(r, conversation.router, p.CONVERSATION, [t.CONVERSATION])
 
     # --- Legacy path aliases (same router objects; keep old clients working) ---
     _mount(

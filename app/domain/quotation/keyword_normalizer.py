@@ -9,6 +9,7 @@ import re
 from typing import Any, Dict, List, Sequence
 
 from app.domain.quotation.keyword_mapping import get_attr_whitelist
+from app.domain.quotation.remark_adjustment import REMARKS_KEYS  # single source of truth
 
 
 YES_VALUES = {"yes", "true", "y", "1", "是"}
@@ -31,7 +32,7 @@ SEMANTIC_FIELD_TOKENS: Dict[str, str] = {
 
 LFP_LIP_KEYS = {"lfplip", "lfp唇口", "lfp唇"}
 CF_L_BRACKET_KEYS = {"cflshapedbracket", "cfl型支架", "l型支架"}
-REMARKS_KEYS = {"remarks", "othersremarks", "others/remarks", "otherremarks", "备注", "其他备注"}
+# REMARKS_KEYS is imported from remark_adjustment (single source of truth).
 FEED_BUCKET_REMARKS_SECTION_RE = re.compile(
     r"feed\s*bucket\s*[,，、/]\s*weigh\s*bucket\s*[:：]\s*([^;\n\r；]*)",
     re.IGNORECASE,

@@ -426,6 +426,15 @@ class Settings(BaseSettings, metaclass=SingletonModelMeta):
     LOCAL_MODEL_GPU_DEVICE: int = Field(3, env="LOCAL_MODEL_GPU_DEVICE")
 
     QWEN3_8B_API_URL: str = Field("http://localhost:80/llm/qwen8b/v1", env="QWEN3_8B_API_URL")
+    QWEN3_8B_MODEL: str = Field(
+        "Qwen/Qwen3-8B-FP8",
+        env="QWEN3_8B_MODEL",
+        description="Served model id for Qwen3-8B (GET /v1/models on the same base as QWEN3_8B_API_URL).",
+    )
+    QWEN3_8B_API_KEY: Optional[str] = Field(
+        default=None, env="QWEN3_8B_API_KEY",
+        description="API key for Qwen3-8B. Leave empty for local vLLM; required for external providers.",
+    )
     QWEN3_6_35B_API_URL: str = Field(
         "http://localhost:80/llm/qwen36b/v1",
         env="QWEN3_6_35B_API_URL",
@@ -435,6 +444,45 @@ class Settings(BaseSettings, metaclass=SingletonModelMeta):
         "/models/Qwen3.6-35B-A3B",
         env="QWEN3_6_35B_MODEL",
         description="Served model id (GET /v1/models on the same base as QWEN3_6_35B_API_URL). vLLM often uses path-style ids, not Hub names.",
+    )
+
+    # ── Web search (conversation 联网检索，默认 Tavily 后端) ──────────────
+    TAVILY_API_KEY: Optional[str] = Field(default=None, env="TAVILY_API_KEY")
+
+    # ── Conversation workflow concurrency caps (shared singletons, see
+    #    app/adapters/conversation/runtime.py). These bound in-flight LLM
+    #    calls and retrieval threads per process. ─────────────────────────
+    CONVERSATION_8B_MAX_CONCURRENT: int = Field(
+        20, ge=1, env="CONVERSATION_8B_MAX_CONCURRENT",
+        description="Max concurrent Qwen3-8B calls (keyword split / intent enhancement).",
+    )
+    CONVERSATION_35B_MAX_CONCURRENT: int = Field(
+        10, ge=1, env="CONVERSATION_35B_MAX_CONCURRENT",
+        description="Max concurrent Qwen3.6-35B streaming answer calls.",
+    )
+    CONVERSATION_RETRIEVAL_MAX_WORKERS: int = Field(
+        8, ge=1, env="CONVERSATION_RETRIEVAL_MAX_WORKERS",
+        description="ThreadPoolExecutor workers for parallel retrieval in a conversation turn.",
+    )
+
+    # ── Remark LLM interpreter (spec sheet field adjustment) ───────────────
+    # When enabled, a remark found in the parsed spec content is sent to the
+    # Qwen3.6-35B primary LLM to produce {canonical_field: adjusted_value}
+    # overrides. Any failure (no model service, timeout, bad output) degrades
+    # gracefully to the original pipeline behavior - this flag only gates the
+    # attempt.
+    REMARK_LLM_INTERPRETER_ENABLED: bool = Field(
+        True,
+        env="REMARK_LLM_INTERPRETER_ENABLED",
+        description="Enable remark -> field-adjustment in spec parsing (uses Qwen3.6-35B). Failures degrade gracefully.",
+    )
+    REMARK_LLM_REQUEST_TIMEOUT: float = Field(
+        30.0, env="REMARK_LLM_REQUEST_TIMEOUT",
+        description="Per-request timeout (seconds) for the remark LLM call.",
+    )
+    REMARK_LLM_MAX_TOKENS: int = Field(
+        512, env="REMARK_LLM_MAX_TOKENS",
+        description="Max output tokens for the remark LLM call.",
     )
 
     N8N_BASE_URL: str = Field("http://localhost:5678", env="N8N_BASE_URL")

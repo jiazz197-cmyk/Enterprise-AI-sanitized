@@ -1,4 +1,4 @@
-/** 聊天 API 对接用的类型（后端 langchain 工作流，Dify 兼容 SSE 协议） */
+/** 与 Dify 聊天 API 对接用的类型 */
 
 export type MessageRole = 'user' | 'assistant'
 

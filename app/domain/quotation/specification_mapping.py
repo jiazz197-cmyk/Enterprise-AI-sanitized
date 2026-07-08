@@ -1,4 +1,4 @@
-"""Specification mapping and structured keyword payload builder (moved from app.integrations.Quotation_Generation.SpecificationMapping)."""
+"""Specification mapping and structured keyword payload builder (moved out of the workers package; was SpecificationMapping)."""
 
 from __future__ import annotations
 

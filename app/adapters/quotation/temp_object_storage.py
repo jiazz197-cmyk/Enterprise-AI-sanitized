@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from app.integrations.ocr.image2url import upload_file_to_minio
-from app.ports.domains.quotation import (
+from app.adapters.ocr.image2url import upload_file_to_minio
+from app.ports.outbound.quotation import (
     CancelChecker,
     QuotationTempObjectStoragePort,
     TempObjectUploadResult,

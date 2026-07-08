@@ -43,7 +43,7 @@ Role-restricted examples:
 Cross-user (same as WebSocket task policy: `admin` or `superuser` may act on other users; normal users are self-only):
 
 - `POST /api/v1/chat-summary/create` and `GET /api/v1/chat-summary/query/{user_id}` — `admin` / `superuser` may use another user’s `user_id` (UUID or username) per handler logic; others restricted to their own aliases.
-- `POST /api/v1/context-compression/compress` — `admin` / `superuser` may pass any business `user_id`; others restricted to their own aliases.
+- `POST /api/v1/context-compression/compress` — `admin` / `superuser` may pass any business `user_id` for Dify; others restricted to their own aliases.
 
 ## Review checklist
 

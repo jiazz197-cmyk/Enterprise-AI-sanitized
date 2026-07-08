@@ -9,7 +9,7 @@ from app.core.config import settings
 from app.core.exceptions import APIException
 from app.core.security import normalize_self_uploader
 from app.ports.contracts.identity import CurrentUserPort
-from app.ports.domains.ocr_async import PdfConvertJobPort, PdfPageCountPort
+from app.ports.outbound.ocr_async import PdfConvertJobPort, PdfPageCountPort
 
 SUPPORTED_PDF_TYPES = frozenset({"application/pdf"})
 

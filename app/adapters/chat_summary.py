@@ -8,13 +8,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import normalize_self_user_identifier
-from app.integrations.Chat_message_archive.message_extractor import (
+from app.adapters.chat_archive.message_extractor import (
     UserProfileDB,
     update_user_profile_with_new_queries,
 )
 from app.models.orm.platform.user import User
 from app.ports.contracts.identity import CurrentUserPort, ROLE_SUPERUSER, ROLE_ADMIN
-from app.ports.domains.chat_summary import ChatArchivePort, ChatSummaryRepoPort, UserLookupPort
+from app.ports.outbound.chat_summary import ChatArchivePort, ChatSummaryRepoPort, UserLookupPort
 from app.ports.dto.chat_summary import ChatSummaryResult
 
 
@@ -65,14 +65,14 @@ class UserProfileSummaryRepoAdapter(ChatSummaryRepoPort):
 
 
 class MessageExtractorChatArchiveAdapter(ChatArchivePort):
-    """Delegate summary generation to the local message archive + LLM service."""
+    """Delegate summary generation workflow to existing integration service."""
 
-    def __init__(self):
-        # No Dify API key needed: messages are read from the local messages table.
-        pass
+    def __init__(self, api_key: str):
+        self._api_key = api_key
 
     async def update_user_profile(self, user_id: str, conversation_id: str, limit: int) -> ChatSummaryResult:
         result = await update_user_profile_with_new_queries(
+            api_key=self._api_key,
             user_id=user_id,
             conversation_id=conversation_id,
             limit=limit,

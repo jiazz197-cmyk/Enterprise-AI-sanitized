@@ -1,4 +1,4 @@
-"""Quotation adapters: MinIO upload, ORM repo, task dispatch."""
+"""Quotation adapters: MinIO upload, ORM repo."""
 
 from __future__ import annotations
 
@@ -16,14 +16,9 @@ from app.core.storage import MinioUploadError
 from app.core.quotation_task_cleanup import (
     safe_cleanup_quotation_task_files_async,
 )
-from app.integrations.Quotation_Generation.quotation_task_workers import (
-    dispatch_quotation_phase2,
-    dispatch_quotation_queue_for_owner,
-)
 from app.models.orm.file_resource import FileResource
 from app.models.orm.quotation_task import QuotationTask, QuotationTaskStatus
-from app.ports.contracts.tasking import TaskDispatchPort
-from app.ports.domains.quotation import (
+from app.ports.outbound.quotation import (
     FileStoragePort,
     QuotationApprovalSelectionPort,
     QuotationTaskRepoPort,
@@ -254,11 +249,3 @@ class ResultPayloadQuotationApprovalSelectionAdapter(QuotationApprovalSelectionP
                 )
             )
         return result
-
-
-class QuotationDispatchAdapter(TaskDispatchPort):
-    def dispatch_owner_queue(self, owner_id: str) -> None:
-        dispatch_quotation_queue_for_owner(owner_id)
-
-    def dispatch_phase2(self, task_id: str, owner_id: str) -> None:
-        dispatch_quotation_phase2(task_id, owner_id)

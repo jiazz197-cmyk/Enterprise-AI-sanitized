@@ -9,12 +9,12 @@ from sqlalchemy import text
 from app.core.database import AsyncSessionLocal
 from app.core.time_utils import utcnow_naive
 from app.core.logging import get_logger
-from app.integrations.closing_form.constants import (
+from app.adapters.closing_form.constants import (
     CLOSING_FORM_TABLE,
     COLLECTION2_TABLE,
     PENDING_TABLE,
 )
-from app.integrations.doc_processing.pipeline import clean_text_for_postgres
+from app.adapters.doc_processing.pipeline import clean_text_for_postgres
 
 logger = get_logger("closing_form.persistence")
 

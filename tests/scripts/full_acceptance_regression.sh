@@ -6,9 +6,9 @@ BASE_URL="${BASE_URL:-http://127.0.0.1:8000}"
 BASE="${BASE:-$BASE_URL/api/v1}"
 
 SUPER_USER="${SUPER_USER:-superuser}"
-SUPER_PASS="${SUPER_PASS:-change_me_super_pass}"
+SUPER_PASS="${SUPER_PASS:-superuser.5001}"
 
-TEST_PDF="${TEST_PDF:-"${TEST_PDF:-./tests/fixtures/sample.pdf}"}"
+TEST_PDF="${TEST_PDF:-/home/shmtu/桌面/ADW-0314S规格书.pdf}"
 RUN_ID="${RUN_ID:-full_accept_$(date +%Y%m%d_%H%M%S)}"
 WORKDIR="${WORKDIR:-/tmp/yamato_full_acceptance_$RUN_ID}"
 LOGFILE="$WORKDIR/full_acceptance.log"
@@ -32,7 +32,7 @@ AUTH=""
 
 FIX_USER=""
 FIX_USER_ID=""
-FIX_USER_PASS="change_me_smoke_pass"
+FIX_USER_PASS="Smoke.5001"
 
 FIX_FILE_ID=""
 FIX_BATCH_A_ID=""
@@ -646,7 +646,7 @@ ws_wait_task() {
   local max_seconds="${3:-180}"
   local out_file="$4"
 
-  if ! "${VENV_PYTHON:-python3}" - <<'PY_CHECK' >/dev/null 2>&1
+  if ! /home/shmtu/桌面/yamatoenv/bin/python - <<'PY_CHECK' >/dev/null 2>&1
 import websockets
 PY_CHECK
   then
@@ -746,7 +746,7 @@ PY_WS
   WS_MAX_SECONDS="$max_seconds" \
   WS_OUT_FILE="$out_file" \
   WS_NAME="$name" \
-  PYTHONUNBUFFERED=1 "${VENV_PYTHON:-python3}" -u "$WORKDIR/ws_wait_task.py"
+  PYTHONUNBUFFERED=1 /home/shmtu/桌面/yamatoenv/bin/python -u "$WORKDIR/ws_wait_task.py"
 
   return $?
 }
@@ -1178,7 +1178,7 @@ test_rag() {
 test_websocket_reject() {
   section "12. WebSocket 正常订阅 / 拒绝场景"
 
-  if ! "${VENV_PYTHON:-python3}" - <<'PY' >/dev/null 2>&1
+  if ! /home/shmtu/桌面/yamatoenv/bin/python - <<'PY' >/dev/null 2>&1
 import websockets
 PY
   then
@@ -1224,13 +1224,13 @@ PY
   export WS_URL="ws://127.0.0.1:8000/api/v1/document-tasks/ws/$ws_task_id"
   export TOKEN="$SUPER_TOKEN"
 
-  MODE=ok "${VENV_PYTHON:-python3}" "$WORKDIR/ws_reject.py" > "$WORKDIR/ws_ok.out" 2>&1 || true
+  MODE=ok /home/shmtu/桌面/yamatoenv/bin/python "$WORKDIR/ws_reject.py" > "$WORKDIR/ws_ok.out" 2>&1 || true
   cat "$WORKDIR/ws_ok.out"
 
-  MODE=bad "${VENV_PYTHON:-python3}" "$WORKDIR/ws_reject.py" > "$WORKDIR/ws_bad.out" 2>&1 || true
+  MODE=bad /home/shmtu/桌面/yamatoenv/bin/python "$WORKDIR/ws_reject.py" > "$WORKDIR/ws_bad.out" 2>&1 || true
   cat "$WORKDIR/ws_bad.out"
 
-  MODE=wrong_field "${VENV_PYTHON:-python3}" "$WORKDIR/ws_reject.py" > "$WORKDIR/ws_wrong.out" 2>&1 || true
+  MODE=wrong_field /home/shmtu/桌面/yamatoenv/bin/python "$WORKDIR/ws_reject.py" > "$WORKDIR/ws_wrong.out" 2>&1 || true
   cat "$WORKDIR/ws_wrong.out"
 
   if grep -q "connection_established" "$WORKDIR/ws_ok.out"; then
@@ -1266,7 +1266,7 @@ test_sqlserver_and_pdm_optional() {
 
   if [ "$RUN_PDM_DEBUG" = "1" ]; then
     if [ -f "$PROJECT_ROOT/tests/pdm_debug.py" ]; then
-      "${VENV_PYTHON:-python3}" "$PROJECT_ROOT/tests/pdm_debug.py" --help || true
+      /home/shmtu/桌面/yamatoenv/bin/python "$PROJECT_ROOT/tests/pdm_debug.py" --help || true
       pass "PDM debug 脚本 help 可执行"
     else
       warn "未找到 tests/pdm_debug.py"
@@ -1376,7 +1376,7 @@ test_multi_user_concurrent() {
   local i user passw email uid
   for i in $(seq 1 "$MULTI_USERS"); do
     user="multi_${RUN_ID}_${i}"
-    passw="change_me_smoke_pass"
+    passw="Smoke.5001"
     email="${user}@example.com"
 
     curl -sS -X POST "$BASE/auth/register" \

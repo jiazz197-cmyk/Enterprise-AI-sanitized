@@ -7,13 +7,10 @@ import uuid
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.core.storage import delete_from_minio
-from app.domain.quotation import (
-    Phase1Result,
-    QuotationPipelineCancelledError,
-    collect_pdm_partids,
-    summarize_pdm_query_params,
-)
-from app.ports.domains.quotation import (
+from app.domain.quotation.exceptions import QuotationPipelineCancelledError
+from app.domain.quotation.pdm_result import collect_pdm_partids, summarize_pdm_query_params
+from app.domain.quotation.results import Phase1Result
+from app.ports.outbound.quotation import (
     CancelChecker,
     OcrPlainTextPort,
     PdfFirstPageRasterPort,
@@ -22,7 +19,7 @@ from app.ports.domains.quotation import (
     SpecParseAndConvertPort,
 )
 from app.domain.exceptions import QueryCancelledError
-from app.ports.domains.sqlserver_queries import PdmMatchQueryPort
+from app.ports.outbound.sqlserver_queries import PdmMatchQueryPort
 from app.ports.dto.sqlserver_queries import PdmMatchCommand
 from app.usecases.quotation._utils import response_to_dict
 

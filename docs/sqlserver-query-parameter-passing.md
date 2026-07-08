@@ -71,7 +71,7 @@ async def query_u8_bom_inventory(
 | `_current_user` | `Depends(get_current_user_detached)` | FastAPI 依赖注入，从 JWT 获取当前用户 |
 | `_u8` | 模块级单例 | `U8BomInventoryQueryAdapter()` 在文件顶部实例化 |
 
-**Pydantic 模型定义**（`app/schemas/sqlserver.py`）：
+**Pydantic 模型定义**（`app/adapters/web/sqlserver.py`）：
 
 ```python
 class U8BomInventoryRequest(BaseModel):
@@ -381,7 +381,7 @@ logger.info(
 
 ```python
 from unittest.mock import Mock
-from app.schemas.sqlserver import U8BomInventoryRequest, QueryResponse
+from app.adapters.web.sqlserver import U8BomInventoryRequest, QueryResponse
 
 def test_u8_query_usecase():
     # 创建 mock Port

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from app.ports.domains.retriever import RetrievalQuery, RetrievalResult, RetrieverPort
+from typing import Any
+
+from app.ports.outbound.retriever import ChartAnalysisPort, RetrievalQuery, RetrievalResult, RetrieverPort
 
 
 class RAGRetrieverAdapter(RetrieverPort):
@@ -13,7 +15,7 @@ class RAGRetrieverAdapter(RetrieverPort):
         self._collection_name = collection_name
 
     def query(self, q: RetrievalQuery) -> RetrievalResult:
-        from app.ragsystem import retriever_for_yamato
+        from app.adapters.ragsystem import retriever_for_yamato
         collection = q.collection_name or self._collection_name
         retriever = retriever_for_yamato.retriever(
             rag_system=self._rag_instance,
@@ -27,7 +29,7 @@ class RAGRetrieverAdapter(RetrieverPort):
         )
 
     def query_db(self, q: RetrievalQuery) -> RetrievalResult:
-        from app.ragsystem import retriever_for_yamato
+        from app.adapters.ragsystem import retriever_for_yamato
         collection = q.collection_name or self._collection_name
         retriever = retriever_for_yamato.retriever(
             rag_system=self._rag_instance,
@@ -40,7 +42,7 @@ class RAGRetrieverAdapter(RetrieverPort):
         )
 
     def query_excel(self, q: RetrievalQuery) -> RetrievalResult:
-        from app.ragsystem import retriever_for_yamato
+        from app.adapters.ragsystem import retriever_for_yamato
         import json
         collection = q.collection_name or self._collection_name
         retriever = retriever_for_yamato.retriever(
@@ -55,3 +57,12 @@ class RAGRetrieverAdapter(RetrieverPort):
             answer=json.dumps(result, ensure_ascii=False) if not isinstance(result, str) else result,
             sources=[],
         )
+
+
+class ChartAnalysisAdapter(ChartAnalysisPort):
+    """Adapter wrapping the ragsystem chart analyzer behind a port interface."""
+
+    async def analyze(self, data_source: Any, requirements: str) -> Any:
+        from app.adapters.ragsystem import chart_analyze
+        analyzer = chart_analyze.analyze()
+        return await analyzer.get_response(data_source, requirements)

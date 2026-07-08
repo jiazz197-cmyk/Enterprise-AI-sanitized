@@ -1,9 +1,9 @@
 import json
 from app.domain.quotation.keyword_normalizer import normalize_pdm_keywords
 from app.domain.quotation.keyword_mapping import detect_product_type, expand_keyword_mapping
-from app.integrations.sqlserver.pdm_bom import build_pdm_and_where_clause
+from app.adapters.sqlserver.pdm_bom import build_pdm_and_where_clause
 
-def test_pdm_query_sql(test_payload):
+def run_pdm_query_sql(test_payload):
     print("=" * 60)
     print("【输入负载】")
     print(json.dumps(test_payload, ensure_ascii=False, indent=2))
@@ -226,4 +226,4 @@ if __name__ == "__main__":
       }
     ]
     
-    test_pdm_query_sql(test_input)
+    run_pdm_query_sql(test_input)

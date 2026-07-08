@@ -43,12 +43,12 @@ from app.domain.quotation.specification_mapping import (  # noqa: E402
     KEYWORD_RULES,
     SpecificationMapping,
 )
-from app.integrations.ocr.image2url import upload_file_to_minio  # noqa: E402
-from app.integrations.ocr.infoextraction import (  # noqa: E402
+from app.adapters.ocr.image2url import upload_file_to_minio  # noqa: E402
+from app.adapters.ocr.infoextraction import (  # noqa: E402
     extract_info,
     extract_layout_info,
 )
-from app.integrations.ocr.pdf2image import pdf_to_single_image  # noqa: E402
+from app.adapters.ocr.pdf2image import pdf_to_single_image  # noqa: E402
 
 
 app = FastAPI(
@@ -181,7 +181,7 @@ def health() -> HealthResponse:
     from app.core.storage import MINIO_BUCKET_NAME  # local import to avoid early init
 
     return HealthResponse(
-        ocr_endpoint=settings.OCR_MODEL_API_URL,
+        ocr_endpoint=settings.DOTS_OCR_ENDPOINT,
         minio_bucket=MINIO_BUCKET_NAME,
         rules_count=len(KEYWORD_RULES),
     )
@@ -254,7 +254,7 @@ async def run_ocr_only(file: UploadFile = File(..., description="PDF file")) -> 
         timings["minio_upload_s"] = round(perf_counter() - t0, 3)
 
         t0 = perf_counter()
-        content = extract_layout_info(image_url, settings.OCR_MODEL_API_URL)
+        content = extract_layout_info(image_url, settings.DOTS_OCR_ENDPOINT)
         timings["ocr_layout_s"] = round(perf_counter() - t0, 3)
 
         t0 = perf_counter()
@@ -297,7 +297,7 @@ async def run_ocr_mapping(file: UploadFile = File(..., description="PDF file")) 
         timings["minio_upload_s"] = round(perf_counter() - t0, 3)
 
         t0 = perf_counter()
-        content = extract_layout_info(image_url, settings.OCR_MODEL_API_URL)
+        content = extract_layout_info(image_url, settings.DOTS_OCR_ENDPOINT)
         timings["ocr_layout_s"] = round(perf_counter() - t0, 3)
 
         t0 = perf_counter()

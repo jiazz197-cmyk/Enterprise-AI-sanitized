@@ -27,7 +27,7 @@ if not os.environ.get("_GPU_INITIALIZED"):
 else:
     LOCAL_GPU_DEVICE = os.environ.get("LOCAL_MODEL_GPU_DEVICE", "3")
 
-from app.ragsystem.RAGretriever import create_rag_retriever_system
+from app.adapters.ragsystem.RAGretriever import create_rag_retriever_system
 
 import asyncio
 from contextlib import asynccontextmanager
@@ -39,7 +39,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from sqlalchemy import or_
 from starlette.middleware.trustedhost import TrustedHostMiddleware
-from app.api.v1 import api_router
+from app.api.v1.registry import api_router
 from app.api.v1.tags import OPENAPI_TAG_METADATA
 from app.core.cache import redis_manager
 from app.core.config import settings
@@ -50,8 +50,8 @@ from app.core.middleware.monitoring import MonitoringMiddleware
 from app.core.middleware.rate_limit import RateLimitMiddleware
 from app.core.middleware.request_size import RequestSizeMiddleware
 from app.core.middleware.security_headers import SecurityHeadersMiddleware
-from app.integrations.monitoring.health_check import health_service
-from app.integrations.monitoring.prometheus import metrics as prometheus_metrics
+from app.adapters.monitoring.health_check import health_service
+from app.adapters.monitoring.prometheus import metrics as prometheus_metrics
 
 logger = get_logger("main")
 
@@ -70,7 +70,7 @@ def require_metrics_access(x_api_key: str | None = Header(default=None, alias="X
 def _startup_check_sqlserver_connectivity(app: FastAPI) -> None:
     """Check U8/PDM connectivity at startup without blocking service startup."""
     try:
-        from app.integrations.sqlserver import test_sqlserver_connectivity
+        from app.adapters.sqlserver.connectivity import test_sqlserver_connectivity
 
         sqlserver_checks = test_sqlserver_connectivity()
         app.state.sqlserver_connectivity = sqlserver_checks
@@ -101,7 +101,7 @@ async def _startup_resume_quotation_services() -> None:
     try:
         from sqlalchemy import select
 
-        from app.integrations.Quotation_Generation.quotation_task_workers import (
+        from app.adapters.workers.quotation_generation.quotation_task_workers import (
             dispatch_quotation_queue_for_owner,
         )
         from app.core.database import AsyncSessionLocal
@@ -168,7 +168,7 @@ async def lifespan(app: FastAPI):
     app.state.metrics = prometheus_metrics
     main_loop = asyncio.get_running_loop()
     try:
-        from app.integrations.Quotation_Generation.quotation_task_workers import (
+        from app.adapters.workers.quotation_generation.quotation_task_workers import (
             set_quotation_dispatch_loop,
         )
         set_quotation_dispatch_loop(main_loop)
@@ -278,7 +278,7 @@ async def lifespan(app: FastAPI):
 
     print("\n[shutdown] 开始关闭...")
     try:
-        from app.integrations.Quotation_Generation.quotation_task_workers import (
+        from app.adapters.workers.quotation_generation.quotation_task_workers import (
             set_quotation_dispatch_loop,
         )
         set_quotation_dispatch_loop(None)
@@ -296,7 +296,7 @@ async def lifespan(app: FastAPI):
         try:
             if hasattr(app.state, "rag") and app.state.rag:
                 try:
-                    from app.ragsystem.retriever_for_yamato import ModelManager
+                    from app.adapters.ragsystem.retriever_for_yamato import ModelManager
 
                     ModelManager().clear_cache()
                 except Exception as mm_exc:
@@ -321,15 +321,6 @@ async def lifespan(app: FastAPI):
             print(f"[warning] 关闭线程池时出错: {e}")
 
         try:
-            from app.integrations.conversation.runtime import (
-                shutdown_conversation_runtime,
-            )
-            shutdown_conversation_runtime()
-            print("[success] 对话检索线程池已关闭")
-        except Exception as e:
-            print(f"[warning] 关闭对话检索线程池时出错: {e}")
-
-        try:
             from app.api.v1.sqlserver_queries import shutdown_sqlserver_query_executor
             shutdown_sqlserver_query_executor()
             print("[success] SQLServer 查询线程池已关闭")
@@ -337,15 +328,15 @@ async def lifespan(app: FastAPI):
             print(f"[warning] 关闭 SQLServer 查询线程池时出错: {e}")
 
         try:
-            from app.integrations.ocr.infoextraction import close_sync_ocr_client
+            from app.adapters.ocr.infoextraction import close_sync_ocr_client
             close_sync_ocr_client()
             print("[success] OCR 同步 HTTP 客户端已关闭")
         except Exception as e:
             print(f"[warning] 关闭 OCR 同步 HTTP 客户端时出错: {e}")
 
         try:
-            from app.integrations.doc_processing.doc_reader import _paddleocr_pool
-            from app.integrations.doc_processing.text_splitter import _taggen_pool
+            from app.adapters.doc_processing.doc_reader import _paddleocr_pool
+            from app.adapters.doc_processing.text_splitter import _taggen_pool
             _paddleocr_pool.close()
             _taggen_pool.close()
             print("[success] 文档处理模型池已关闭")

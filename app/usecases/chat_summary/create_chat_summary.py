@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from app.ports.contracts.identity import CurrentUserPort
-from app.ports.domains.chat_summary import ChatArchivePort, UserLookupPort
+from app.ports.outbound.chat_summary import ChatArchivePort, UserLookupPort
 from app.ports.dto.chat_summary import ChatSummaryResult
 
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.integrations.sqlserver import u8_bom
+from app.adapters.sqlserver import u8_bom
 
 
 class _DeadlockError(Exception):

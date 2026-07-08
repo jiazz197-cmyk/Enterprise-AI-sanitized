@@ -22,8 +22,9 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import Iterable, Set
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 
+from app.adapters.closing_form.constants import CLOSING_FORM_TABLE, PENDING_TABLE
 from app.core.async_storage import async_list_objects, async_delete_from_minio
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
@@ -66,6 +67,39 @@ async def _collect_registered_paths() -> Set[str]:
                 xlsx = payload.get("u8_result_by_type_xlsx_minio_path")
                 if isinstance(xlsx, str) and xlsx.strip():
                     registered.add(xlsx.strip())
+
+        # Closing-form images live under form_pic/ (a scanned prefix). Without
+        # registering them, the sweep would delete images still referenced by
+        # live pending/approved forms. Pending rows carry them as columns;
+        # approved rows carry them in metadata_. These app-data tables may be
+        # absent in stripped-down environments, so query best-effort.
+        try:
+            cf_pending = await db.execute(
+                text(f"SELECT image_url_1, image_url_2 FROM {PENDING_TABLE}")
+            )
+            for img1, img2 in cf_pending.all():
+                if img1:
+                    registered.add(img1)
+                if img2:
+                    registered.add(img2)
+        except Exception as exc:
+            logger.warning("MinIO reconcile: 跳过 %s 图片登记: %s", PENDING_TABLE, exc)
+
+        try:
+            cf_approved = await db.execute(
+                text(
+                    f"SELECT metadata_->>'image_url_1' AS img1,"
+                    f" metadata_->>'image_url_2' AS img2"
+                    f" FROM {CLOSING_FORM_TABLE}"
+                )
+            )
+            for img1, img2 in cf_approved.all():
+                if img1:
+                    registered.add(img1)
+                if img2:
+                    registered.add(img2)
+        except Exception as exc:
+            logger.warning("MinIO reconcile: 跳过 %s 图片登记: %s", CLOSING_FORM_TABLE, exc)
     return registered
 
 

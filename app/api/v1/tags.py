@@ -17,7 +17,6 @@ CLOSING_FORM: Tag = "Closing Form"
 CONTEXT_COMPRESSION: Tag = "Context Compression"
 SQLSERVER_QUERY: Tag = "SQLServer Query"
 OCR: Tag = "OCR"
-CONVERSATION: Tag = "Conversation"
 
 # Descriptions for FastAPI `openapi_tags` in main app
 OPENAPI_TAG_METADATA: list[dict] = [
@@ -72,9 +71,5 @@ OPENAPI_TAG_METADATA: list[dict] = [
     {
         "name": SQLSERVER_QUERY,
         "description": "U8 / PDM and other SQL Server backed queries.",
-    },
-    {
-        "name": CONVERSATION,
-        "description": "Langchain-backed chat workflow (replaces Dify advanced-chat).",
     },
 ]

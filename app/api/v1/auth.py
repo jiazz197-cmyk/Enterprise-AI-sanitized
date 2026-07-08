@@ -4,7 +4,8 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.adapters.auth import BcryptPasswordHasherAdapter, SqlAlchemyUserRepositoryAdapter
+from app.adapters.auth.password_hasher import BcryptPasswordHasherAdapter
+from app.adapters.auth.user_repository import SqlAlchemyUserRepositoryAdapter
 from app.core.exceptions import AuthenticationError, NotFoundError, PermissionDeniedError
 from app.core.logging import get_logger
 from app.core.security import get_current_user, require_roles, create_access_token
@@ -16,20 +17,20 @@ from app.ports.dto.auth import (
     UpdateUserRoleCommand,
     UserDTO,
 )
-from app.schemas.platform.token import TokenResponse
-from app.schemas.platform.user import (
+from app.adapters.web.platform.token import TokenResponse
+from app.adapters.web.platform.user import (
     UserLogin,
     UserPagePermissionsUpdate,
     UserRead,
     UserRoleUpdate,
     UserRegister,
 )
-from app.usecases.auth import (
+from app.usecases.auth.login import LoginUseCase
+from app.usecases.auth.register import RegisterUseCase
+from app.usecases.auth.users import (
     DeleteUserUseCase,
     GetUserUseCase,
     ListUsersUseCase,
-    LoginUseCase,
-    RegisterUseCase,
     UpdateUserPagePermissionsUseCase,
     UpdateUserRoleUseCase,
 )

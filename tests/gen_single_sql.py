@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import json
 from app.domain.quotation.keyword_mapping import detect_product_type, expand_keyword_mapping
 from app.domain.quotation.keyword_normalizer import normalize_pdm_keywords
-from app.integrations.sqlserver.pdm_bom import build_pdm_and_where_clause
+from app.adapters.sqlserver.pdm_bom import build_pdm_and_where_clause
 
 
 # 单个 type 数据

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from app.core.exceptions import APIException
 from app.core.time_utils import utcnow_naive
 from app.ports.contracts.tasking import TaskDispatchPort, TaskExecutionPort, TaskStatePort
-from app.ports.domains.quotation import QuotationTaskRepoPort
+from app.ports.outbound.quotation import QuotationTaskRepoPort
 
 
 @dataclass

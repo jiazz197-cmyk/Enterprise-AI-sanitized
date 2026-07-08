@@ -1,7 +1,7 @@
 """Unit tests for SpecificationMapping → keywords_payload.
 
 The tests feed a hand-crafted `extracted_info` dict that mirrors what
-`app.integrations.ocr.infoextraction.extract_info` produces, then check
+`app.adapters.ocr.infoextraction.extract_info` produces, then check
 that `SpecificationMapping.generate_keywords_payload()` maps every
 documented (type, attr) pair correctly.
 

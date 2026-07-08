@@ -36,3 +36,19 @@ class QueryResultDTO:
     data: Any = None
     error: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class SqlserverQueryResultDTO:
+    """U8/PDM query result DTO (port-level; web layer maps to QueryResponse).
+
+    Driven adapters return this pure dataclass so they no longer depend on the
+    web-layer pydantic ``QueryResponse``. The API route maps it back to the
+    response model.
+    """
+
+    total: int = 0
+    items: List[Dict[str, Any]] = field(default_factory=list)
+    components: List[Dict[str, Any]] = field(default_factory=list)
+    failed_root_codes: List[str] = field(default_factory=list)
+    partial: bool = False

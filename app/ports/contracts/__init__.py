@@ -1,15 +1,7 @@
-"""Cross-business Protocol contracts."""
+"""Cross-business Protocol contracts.
 
-from app.ports.contracts.executor_async import ExecutorAsyncTaskPort
-from app.ports.contracts.identity import CurrentUserPort
-from app.ports.contracts.metrics import RequestMetricsPort
-from app.ports.contracts.tasking import TaskDispatchPort, TaskExecutionPort, TaskStatePort
+Import explicitly from submodules (e.g. ``app.ports.contracts.identity``).
+This package does not re-export symbols.
+"""
 
-__all__ = [
-    "CurrentUserPort",
-    "ExecutorAsyncTaskPort",
-    "RequestMetricsPort",
-    "TaskDispatchPort",
-    "TaskExecutionPort",
-    "TaskStatePort",
-]
+__all__: list[str] = []

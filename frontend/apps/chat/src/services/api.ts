@@ -53,9 +53,11 @@ const getAuthToken = (): string | null => {
   return getAuthTokenFromStorage()
 }
 
-/** 聊天接口现在直连后端，鉴权用登录 JWT（与业务 API 一致）。 */
+/** 聊天走代理时只带 JSON，鉴权在网关处理。 */
 export const createChatHeaders = (): HeadersInit => {
-  return createAuthHeaders({ jsonContentType: true })
+  return {
+    'Content-Type': 'application/json',
+  }
 }
 
 /** 业务 API：Bearer 来自登录，不用 Chat API Key。 */

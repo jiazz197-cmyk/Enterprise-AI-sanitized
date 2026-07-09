@@ -136,26 +136,26 @@ Yamato AI 助手平台是为<strong>大和衡器（上海）</strong>量身定�
 
 | 层 | 位置 | 职责 | 禁止 |
 |----|------|------|------|
-| **Route** | `app/api/v1/` | 解析/校验输入、构造 Adapter + UseCase、映射 HTTP 响应 | （修复路由）直接 import `app.integrations` |
-| **UseCase** | `app/usecases/` | 编排业务步骤，接收 Port，返回稳定结果 | import `app.integrations`、ORM、HTTP 客户端 |
+| **Route** | `app/api/v1/` | 解析/校验输入、构造 Adapter + UseCase、映射 HTTP 响应 | （修复路由）直接 import `app.adapters` |
+| **UseCase** | `app/usecases/` | 编排业务步骤，接收 Port，返回稳定结果 | import `app.adapters`、ORM、HTTP 客户端 |
 | **Port** | `app/ports/` | `Protocol` 契约 + 纯 DTO | 做 IO |
 | **Adapter** | `app/adapters/` | 实现 Port，桥接到集成层/ORM/配置 | 容纳完整业务流程（留在 UseCase） |
 | **Domain** | `app/domain/` | 无 IO 纯函数 + 共享异常 | — |
-| **Integration** | `app/integrations/` | 第三方 / HTTP / SQL 实现细节 | 被 UseCase 或修复路由 import |
+| **Integration** | （已合并入 `app/adapters/`） | 第三方 / HTTP / SQL 实现细节 | 被 UseCase 或修复路由 import |
 
 ### 对话工作流（langchain，进程内）
 
 - **Route** `app/api/v1/conversation.py`：Dify 兼容 SSE 端点（`/chat-messages`、`/conversations`、`/messages`、重命名），JWT 鉴权，内存态协作式取消
 - **UseCase** `app/usecases/conversation/run.py`：编排会话解析 → 记忆覆盖 → 用户画像 → 双通记忆装配 → 流式作答 → 持久化
-- **Integration** `app/integrations/conversation/pipeline.py`：三路分支应答引擎（关键词提取 → 本地检索 / 联网搜索 → 意图增强 → 流式答案，`<think>` 实时剥离）
-- **Runtime** `app/integrations/conversation/runtime.py`：进程级 LLM 客户端单例（连接池复用）+ 按模型分桶信号量（8B=20 / 35B=10，请求级背压）+ 专用检索线程池（隔离阻塞式 RAG，max=8）
+- **Integration** `app/adapters/conversation/pipeline.py`：三路分支应答引擎（关键词提取 → 本地检索 / 联网搜索 → 意图增强 → 流式答案，`<think>` 实时剥离）
+- **Runtime** `app/adapters/conversation/runtime.py`：进程级 LLM 客户端单例（连接池复用）+ 按模型分桶信号量（8B=20 / 35B=10，请求级背压）+ 专用检索线程池（隔离阻塞式 RAG，max=8）
 - **Storage** `app/models/orm/conversation.py`：`conversations`（持有 `long_memory` + `recent_dialogs`）与 `messages` 行；`ConversationRepoPort` 为唯一真相源，被对话、聊天摘要、上下文压缩共用
 
 ### 报价生成流水线
 
 两阶段状态机：`queued` → `running`(Phase1) → `awaiting_approval` → `running`(Phase2) → `completed`（另有 `failed` / `cancelled`）。PostgreSQL 为状态真相源，Redis 为 WS 进度缓存镜像；协程式取消贯穿 Port 调用。详见 `docs/quotation-task-and-data-flow.md`、`docs/task-state-truth.md`。
 
-**U8 并行查询优化**（`app/integrations/sqlserver/u8_bom.py`）：
+**U8 并行查询优化**（`app/adapters/sqlserver/u8_bom.py`）：
 
 - 单任务内 `ThreadPoolExecutor` 并行展开多个 BOM 根节点，并行度 `U8_BOM_PARALLEL_WORKERS`（默认 16、最高 128）
 - IN 列表按 `_IN_CLAUSE_BATCH_SIZE = 1000` 分批，规避 SQL Server 单次 2100 参数硬上限，大 BOM（根编码 × 深度展开后子件无界）不会触发 8003 静默丢数据
@@ -193,10 +193,9 @@ Yamato AI 助手平台是为<strong>大和衡器（上海）</strong>量身定�
 | [`main.py`](main.py) | FastAPI 入口、生命周期（报价队列恢复、SQL Server 连通性检查、依赖降级初始化） |
 | [`app/api/v1/`](app/api/v1/) | 路由层（组合根），`registry.py` 扁平装配各业务 router |
 | [`app/usecases/`](app/usecases/) | 业务用例编排（对话、报价、聊天摘要、上下文压缩等） |
-| [`app/ports/`](app/ports/) | `Protocol` 契约（`contracts/`、`domains/`）+ 纯 DTO（`dto/`） |
-| [`app/adapters/`](app/adapters/) | Port 实现，桥接 ORM / 集成层 / 配置（含备注回填 `remark_interpreter.py`） |
+| [`app/ports/`](app/ports/) | `Protocol` 契约（`contracts/`、`outbound/`）+ 纯 DTO（`dto/`） |
+| [`app/adapters/`](app/adapters/) | Port 实现，桥接 ORM / 集成 / 配置（含备注回填 `remark_interpreter.py`）；原 `app/integrations/`（对话 langchain 管线、报价、OCR、RAG、U8/PDM SQL 等）已合并于此 |
 | [`app/domain/`](app/domain/) | 无 IO 纯函数（记忆拼装、`<think>` 剥离、搜索筛选、**备注回填校验** `remark_adjustment.py`、提示词等）与共享异常 |
-| [`app/integrations/`](app/integrations/) | 第三方/HTTP/SQL 实现（对话 langchain 管线、报价、OCR、RAG、U8/PDM SQL 等） |
 | [`app/models/orm/`](app/models/orm/) | SQLAlchemy ORM（对话、消息、报价任务等） |
 | [`app/core/`](app/core/) | 配置、任务管理器、执行器、WS、中间件、安全、仓储 |
 | [`frontend/`](frontend/) | pnpm + Turbo Monorepo；业务应用在 [`frontend/apps/chat`](frontend/apps/chat) |

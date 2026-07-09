@@ -1,13 +1,6 @@
-"""Closing form adapters."""
+"""Closing form adapters.
 
-from app.adapters.closing_form.adapter import (
-    ClosingFormEmbeddingAdapterPort,
-    ClosingFormImageStorageAdapterPort,
-    ClosingFormPersistenceAdapter,
-)
+Import explicitly from submodules (e.g. ``app.adapters.closing_form.adapter``).
+"""
 
-__all__ = [
-    "ClosingFormPersistenceAdapter",
-    "ClosingFormEmbeddingAdapterPort",
-    "ClosingFormImageStorageAdapterPort",
-]
+__all__: list[str] = []

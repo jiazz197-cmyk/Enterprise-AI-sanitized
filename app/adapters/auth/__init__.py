@@ -1,6 +1,6 @@
-"""Auth adapters package."""
+"""Auth adapters.
 
-from app.adapters.auth.password_hasher import BcryptPasswordHasherAdapter
-from app.adapters.auth.user_repository import SqlAlchemyUserRepositoryAdapter
+Import explicitly from submodules (e.g. ``app.adapters.auth.password_hasher``).
+"""
 
-__all__ = ["BcryptPasswordHasherAdapter", "SqlAlchemyUserRepositoryAdapter"]
+__all__: list[str] = []

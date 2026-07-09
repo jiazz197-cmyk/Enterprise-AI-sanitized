@@ -7,9 +7,9 @@ BASE_URL="${BASE_URL:-http://127.0.0.1:8000}"
 BASE="${BASE:-$BASE_URL/api/v1}"
 
 SUPER_USER="${SUPER_USER:-superuser}"
-SUPER_PASS="${SUPER_PASS:-change_me_super_pass}"
+SUPER_PASS="${SUPER_PASS:-superuser.5001}"
 
-TEST_PDF="${TEST_PDF:-"${TEST_PDF:-./tests/fixtures/sample.pdf}"}"
+TEST_PDF="${TEST_PDF:-/home/shmtu/桌面/ADW-0314S规格书.pdf}"
 RUN_ID="${RUN_ID:-fix_ws_$(date +%Y%m%d_%H%M%S)}"
 
 WORKDIR="${WORKDIR:-/tmp/yamato_fix_regression_$RUN_ID}"
@@ -28,7 +28,7 @@ AUTH=""
 
 FIX_USER=""
 FIX_USER_ID=""
-FIX_USER_PASS="change_me_smoke_pass"
+FIX_USER_PASS="Smoke.5001"
 
 FIX_FILE_ID=""
 
@@ -430,7 +430,7 @@ ws_wait_task() {
   local max_seconds="${3:-180}"
   local out_file="$4"
 
-  if ! "${VENV_PYTHON:-python3}" - <<'PY_CHECK' >/dev/null 2>&1
+  if ! /home/shmtu/桌面/yamatoenv/bin/python - <<'PY_CHECK' >/dev/null 2>&1
 import websockets
 PY_CHECK
   then
@@ -574,7 +574,7 @@ PY_WS
   WS_MAX_SECONDS="$max_seconds" \
   WS_OUT_FILE="$out_file" \
   WS_NAME="$name" \
-  PYTHONUNBUFFERED=1 "${VENV_PYTHON:-python3}" -u "$WORKDIR/ws_wait_task.py"
+  PYTHONUNBUFFERED=1 /home/shmtu/桌面/yamatoenv/bin/python -u "$WORKDIR/ws_wait_task.py"
 
   return $?
 }
@@ -844,7 +844,7 @@ test_rag() {
 test_websocket_reject() {
   section "11. WebSocket 拒绝场景"
 
-  if ! "${VENV_PYTHON:-python3}" - <<'PY' >/dev/null 2>&1
+  if ! /home/shmtu/桌面/yamatoenv/bin/python - <<'PY' >/dev/null 2>&1
 import websockets
 PY
   then
@@ -899,10 +899,10 @@ PY
   export WS_URL="ws://127.0.0.1:8000/api/v1/document-tasks/ws/$ws_task_id"
   export TOKEN="$SUPER_TOKEN"
 
-  MODE=bad "${VENV_PYTHON:-python3}" "$WORKDIR/ws_reject.py" > "$WORKDIR/ws_bad.out" 2>&1 || true
+  MODE=bad /home/shmtu/桌面/yamatoenv/bin/python "$WORKDIR/ws_reject.py" > "$WORKDIR/ws_bad.out" 2>&1 || true
   cat "$WORKDIR/ws_bad.out"
 
-  MODE=wrong_field "${VENV_PYTHON:-python3}" "$WORKDIR/ws_reject.py" > "$WORKDIR/ws_wrong.out" 2>&1 || true
+  MODE=wrong_field /home/shmtu/桌面/yamatoenv/bin/python "$WORKDIR/ws_reject.py" > "$WORKDIR/ws_wrong.out" 2>&1 || true
   cat "$WORKDIR/ws_wrong.out"
 
   pass "WebSocket 拒绝场景已执行"

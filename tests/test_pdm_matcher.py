@@ -86,16 +86,16 @@ def test_imports():
     from app.core.config import settings
     print(f"  ✓ Settings: PDM_SQLSERVER_HOST={settings.PDM_SQLSERVER_HOST}")
 
-    from app.integrations.pdm_matcher.type_config import TYPE_CONFIG
+    from app.adapters.pdm_matcher.type_config import TYPE_CONFIG
     print(f"  ✓ type_config: {len(TYPE_CONFIG)} 部件类型")
 
-    from app.integrations.pdm_matcher.model_deriver import derive_models
+    from app.adapters.pdm_matcher.model_deriver import derive_models
     print("  ✓ model_deriver")
 
-    from app.integrations.pdm_matcher.engine import query_candidate_parts, query_all_parallel
+    from app.adapters.pdm_matcher.engine import query_candidate_parts, query_all_parallel
     print("  ✓ engine: query_candidate_parts, query_all_parallel")
 
-    from app.integrations.sqlserver.pdm_matcher_adapter import adapt_input_to_matcher2
+    from app.adapters.sqlserver.pdm_matcher_adapter import adapt_input_to_matcher2
     print("  ✓ pdm_matcher_adapter")
 
     print("  ✅ 导入链测试通过\n")
@@ -107,7 +107,7 @@ def test_adapter_functions():
     print("测试 2: 适配器函数")
     print("=" * 60)
 
-    from app.integrations.sqlserver.pdm_matcher_adapter import (
+    from app.adapters.sqlserver.pdm_matcher_adapter import (
         adapt_input_to_matcher2,
         _truncate_component,
     )
@@ -171,7 +171,7 @@ def test_model_deriver():
     print("测试 3: 型号派生")
     print("=" * 60)
 
-    from app.integrations.pdm_matcher.model_deriver import derive_models
+    from app.adapters.pdm_matcher.model_deriver import derive_models
 
     # 标准型号
     models = derive_models("ADW-A-0314S")
@@ -202,7 +202,7 @@ def test_db_query():
     print("=" * 60)
 
     from app.core.config import settings
-    from app.integrations.pdm_matcher.engine import query_candidate_parts
+    from app.adapters.pdm_matcher.engine import query_candidate_parts
 
     print(f"  连接: {settings.PDM_SQLSERVER_HOST}:{settings.PDM_SQLSERVER_PORT}")
     print(f"  数据库: {settings.PDM_SQLSERVER_DATABASE}")
@@ -253,8 +253,8 @@ def test_parallel_query():
     print("测试 5: 并行查询")
     print("=" * 60)
 
-    from app.integrations.pdm_matcher.engine import query_all_parallel
-    from app.integrations.sqlserver.pdm_matcher_adapter import _truncate_component
+    from app.adapters.pdm_matcher.engine import query_all_parallel
+    from app.adapters.sqlserver.pdm_matcher_adapter import _truncate_component
 
     specs = SAMPLE_BOM_SPECS
 

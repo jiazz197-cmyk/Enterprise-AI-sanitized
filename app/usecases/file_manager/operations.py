@@ -9,7 +9,7 @@ from app.core.exceptions import PermissionDeniedError, ValidationError
 from app.core.logging import get_logger
 from app.ports.contracts.identity import ROLE_SUPERUSER
 from app.ports.contracts.identity import CurrentUserPort
-from app.ports.domains.file_manager import FileManagerPort
+from app.ports.outbound.file_manager import FileManagerPort
 from app.ports.dto.files import FileRecordDTO
 
 logger = get_logger("file_manager.uc")

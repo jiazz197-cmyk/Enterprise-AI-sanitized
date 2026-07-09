@@ -1,8 +1,6 @@
 """按用户 WS 连接上限单元测试（B3：NAT 安全的逐用户分档）。"""
 from __future__ import annotations
 
-from types import SimpleNamespace
-
 import pytest
 from fastapi import WebSocketException
 
@@ -10,9 +8,23 @@ from app.core.config import settings
 from app.core.websocket_task_manager import WebSocketConnectionManager
 
 
-def _ws() -> SimpleNamespace:
-    """最小 WebSocket 桩：register/disconnect 只读写 .state。"""
-    return SimpleNamespace(state=SimpleNamespace())
+class _StubState:
+    pass
+
+
+class _StubWS:
+    """最小 WebSocket 桩：register/disconnect 只读写 .state。
+
+    register 把 websocket 放进 set（active_connections[task_id].add），故桩必须可哈希。
+    SimpleNamespace 因定义了 __eq__ 而不可哈希，这里用默认身份哈希的普通类。
+    """
+
+    def __init__(self) -> None:
+        self.state = _StubState()
+
+
+def _ws() -> _StubWS:
+    return _StubWS()
 
 
 def test_register_within_user_cap_succeeds():

@@ -7,7 +7,7 @@ from typing import Optional
 
 from app.core.exceptions import APIException
 from app.ports.contracts.identity import CurrentUserPort
-from app.ports.domains.ocr_async import ImageUploadJobPort
+from app.ports.outbound.ocr_async import ImageUploadJobPort
 
 SUPPORTED_IMAGE_TYPES = frozenset(
     {

@@ -92,7 +92,6 @@ def init_db_tables():
     """create_all；并尝试给 data_pending 补 status 列；最后写种子 superuser。"""
     try:
         from app.models.orm.closing_form import PendingForm  # noqa: F401
-        from app.models.orm.conversation import Conversation, Message  # noqa: F401
         from app.models.orm.file_resource import FileResource  # noqa: F401
         from app.models.orm.quotation_task import QuotationTask  # noqa: F401
         from app.models.orm.knowledge import KnowledgeInstance  # noqa: F401

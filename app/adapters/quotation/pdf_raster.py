@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from app.integrations.ocr.pdf2image import pdf_to_single_image
-from app.ports.domains.quotation import CancelChecker, PdfFirstPageRasterPort, RasterPageResult
+from app.adapters.ocr.pdf2image import pdf_to_single_image
+from app.ports.outbound.quotation import CancelChecker, PdfFirstPageRasterPort, RasterPageResult
 
 
 class PdfFirstPageRasterAdapter(PdfFirstPageRasterPort):

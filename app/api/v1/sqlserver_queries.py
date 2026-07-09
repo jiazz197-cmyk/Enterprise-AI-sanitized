@@ -13,10 +13,15 @@ from app.adapters.sqlserver_queries import PdmBomQueryAdapter, PdmMatchQueryAdap
 from app.core.config import settings
 from app.core.exceptions import ExternalServiceError
 from app.core.security import get_current_user_detached
-from app.domain.exceptions import U8RootFailureBreakerError
 from app.ports.contracts.identity import CurrentUserPort
-from app.ports.dto.sqlserver_queries import PdmBomCommand, PdmMatchCommand, U8BomInventoryCommand
-from app.schemas.sqlserver import PdmBomRequest, QueryResponse, U8BomInventoryRequest
+from app.ports.outbound.sqlserver_queries import U8RootFailureBreakerError
+from app.ports.dto.sqlserver_queries import (
+    PdmBomCommand,
+    PdmMatchCommand,
+    SqlserverQueryResultDTO,
+    U8BomInventoryCommand,
+)
+from app.adapters.web.sqlserver import PdmBomRequest, QueryResponse, U8BomInventoryRequest
 from app.usecases.sqlserver_queries.run_queries import RunPdmBomQueryUseCase, RunPdmMatchQueryUseCase, RunU8BomInventoryQueryUseCase
 
 router = APIRouter()
@@ -27,17 +32,28 @@ _pdm_match = PdmMatchQueryAdapter()
 # 同步查询 API 的执行器：大小对齐 EXECUTOR_MAX_WORKERS（已由 config validator
 # 保证 ≥ U8_BOM_MAX_CONCURRENT_TASKS），否则多人同时点"查 BOM"时任务会卡在这个
 # 执行器队列里"看戏"，根本到不了 per-user / 全局 BOM 信号量。
-# 注意：SQLSERVER_QUERY_MAX_WORKERS 不用在这里——它只管 PDM matcher 的查询内并行。
+# 注意：SQLSERVER_QUERY_MAX_WORKERS 不用在这里--它只管 PDM matcher 的查询内并行。
 _sqlserver_query_executor = ThreadPoolExecutor(
     max_workers=settings.EXECUTOR_MAX_WORKERS,
     thread_name_prefix="sqlserver_query_",
 )
 
 
-async def _run_sqlserver_query(func, *args, **kwargs) -> QueryResponse:
+async def _run_sqlserver_query(func, *args, **kwargs) -> SqlserverQueryResultDTO:
     loop = asyncio.get_running_loop()
     return await loop.run_in_executor(
         _sqlserver_query_executor, partial(func, *args, **kwargs)
+    )
+
+
+def _to_response(result: SqlserverQueryResultDTO) -> QueryResponse:
+    """Map the port-level result DTO to the web-layer response model."""
+    return QueryResponse(
+        total=result.total,
+        items=result.items,
+        components=result.components,
+        failed_root_codes=result.failed_root_codes,
+        partial=result.partial,
     )
 
 
@@ -65,8 +81,10 @@ async def query_u8_bom_inventory(
     )
     # 传入调用者 id 作为 per-user 并发限流的 key（单人最多 2 个并发 BOM 查询）。
     try:
-        return await _run_sqlserver_query(
-            RunU8BomInventoryQueryUseCase(_u8).execute, cmd, user_key=_current_user.id
+        return _to_response(
+            await _run_sqlserver_query(
+                RunU8BomInventoryQueryUseCase(_u8).execute, cmd, user_key=_current_user.id
+            )
         )
     except U8RootFailureBreakerError as exc:
         failed_sample = ", ".join(exc.failed_root_codes[:10]) or "未知"
@@ -81,9 +99,9 @@ async def query_pdm_bom_old(
     payload: PdmBomRequest,
     _current_user: CurrentUserPort = Depends(get_current_user_detached),
 ) -> QueryResponse:
-    """查询 pdm.BOM_016，支持单组关键词 AND 或多组关键词分批查询。需登录。"""
+    """查询 pdm78.BOM_016，支持单组关键词 AND 或多组关键词分批查询。需登录。"""
     cmd = PdmBomCommand(keywords=payload.keywords)
-    return await _run_sqlserver_query(RunPdmBomQueryUseCase(_pdm).execute, cmd)
+    return _to_response(await _run_sqlserver_query(RunPdmBomQueryUseCase(_pdm).execute, cmd))
 
 
 @router.post("/pdm/bom", response_model=QueryResponse, summary="PDM 部件匹配（四路召回+打分）")
@@ -93,4 +111,4 @@ async def query_pdm_bom(
 ) -> QueryResponse:
     """PDM 部件匹配 - 四路召回 + 多维打分 + 分层输出。需登录。"""
     cmd = PdmMatchCommand(keywords=payload.keywords)
-    return await _run_sqlserver_query(RunPdmMatchQueryUseCase(_pdm_match).execute, cmd)
+    return _to_response(await _run_sqlserver_query(RunPdmMatchQueryUseCase(_pdm_match).execute, cmd))

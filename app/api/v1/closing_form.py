@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from minio.error import S3Error
 
-from app.adapters.closing_form import (
+from app.adapters.closing_form.adapter import (
     ClosingFormEmbeddingAdapterPort,
     ClosingFormImageStorageAdapterPort,
     ClosingFormPersistenceAdapter,
@@ -25,7 +25,7 @@ from app.core.storage import (
 )
 from app.ports.contracts.identity import CurrentUserPort, ROLE_SUPERUSER, ROLE_ADMIN
 from app.ports.dto.closing_form import ClosingFormCommand
-from app.schemas.endpoints.closing_form import (
+from app.adapters.web.endpoints.closing_form import (
     ClosingFormApproveResponse,
     ClosingFormDeleteResponse,
     ClosingFormListResponse,

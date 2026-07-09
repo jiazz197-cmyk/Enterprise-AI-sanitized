@@ -14,8 +14,8 @@ from contextlib import contextmanager
 import pytest
 
 from app.core.config import settings
-from app.integrations.sqlserver import u8_bom
-from app.integrations.sqlserver.exceptions import (
+from app.adapters.sqlserver import u8_bom
+from app.adapters.sqlserver.exceptions import (
     QueryCancelledError,
     U8RootFailureBreakerError,
 )

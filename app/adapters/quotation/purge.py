@@ -13,7 +13,7 @@ from app.core.task_manager import task_manager
 from app.core.task_owner_registry import task_owner_registry
 from app.core.quotation_task_cleanup import safe_cleanup_quotation_task_files_async
 from app.models.orm.quotation_task import QuotationTask
-from app.ports.domains.quotation import QuotationTaskPurgePort
+from app.ports.outbound.quotation import QuotationTaskPurgePort
 
 _TERMINAL_STATUSES = frozenset({"completed", "failed", "cancelled"})
 _RETENTION_PURGE_STATUSES = _TERMINAL_STATUSES | {"awaiting_approval", "running"}

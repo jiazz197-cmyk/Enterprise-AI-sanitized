@@ -44,6 +44,7 @@ class CircuitBreaker:
         self._failures = 0
         self._state = "closed"  # closed | open | half_open
         self._opened_at: float = 0.0
+        self._trial_in_flight = False
         self._lock = threading.Lock()
 
     @property
@@ -66,25 +67,30 @@ class CircuitBreaker:
                 raise CircuitBreakerOpenError(
                     f"熔断器[{self.name}]处于开启状态，快速失败（已连续失败 {self._failures} 次）"
                 )
-            # half_open: allow exactly one trial call (the caller holding the lock
-            # transitioned to half_open). Other concurrent callers see half_open
-            # and are allowed only if they arrive before the trial resolves; to
-            # keep it simple we let one through and the rest fast-fail.
+            # half_open: allow exactly one trial call. While the trial is in
+            # flight every other caller fast-fails — this guarantees a single
+            # probe even when the trial outlasts open_sec (e.g. a slow U8 query
+            # whose 120s timeout exceeds the re-open window). The trial resolves
+            # via record_success (→ closed) or record_failure (→ open, re-armed).
             if state == "half_open":
-                # Only one trial at a time: re-open for subsequent callers until
-                # the trial completes.
-                self._state = "open"
-                self._opened_at = time.monotonic()
+                if self._trial_in_flight:
+                    raise CircuitBreakerOpenError(
+                        f"熔断器[{self.name}]半开探测进行中，快速失败"
+                    )
+                self._trial_in_flight = True
 
     def record_success(self) -> None:
         with self._lock:
             self._failures = 0
+            self._trial_in_flight = False
             self._state = "closed"
 
     def record_failure(self) -> None:
         with self._lock:
             self._failures += 1
-            if self._state == "half_open" or self._failures >= self._fail_threshold:
+            was_trial = self._trial_in_flight
+            self._trial_in_flight = False
+            if was_trial or self._failures >= self._fail_threshold:
                 self._state = "open"
                 self._opened_at = time.monotonic()
                 if self._failures == self._fail_threshold:
@@ -96,6 +102,7 @@ class CircuitBreaker:
     def reset(self) -> None:
         with self._lock:
             self._failures = 0
+            self._trial_in_flight = False
             self._state = "closed"
 
 

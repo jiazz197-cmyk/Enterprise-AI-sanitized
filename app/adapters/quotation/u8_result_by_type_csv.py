@@ -15,7 +15,7 @@ from app.adapters.quotation._xlsx_utils import (
     normalize_row,
     unit_price_column_index,
 )
-from app.ports.domains.u8_result_by_type_csv import (
+from app.ports.outbound.u8_result_by_type_csv import (
     U8ResultByTypeCsvExport,
     U8ResultByTypeCsvPort,
     U8ResultByTypeXlsxExport,

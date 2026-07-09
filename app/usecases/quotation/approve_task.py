@@ -6,9 +6,9 @@ from dataclasses import dataclass
 
 from app.core.exceptions import APIException
 from app.core.logging import get_logger
-from app.domain.quotation import build_summary_selection_items
+from app.domain.quotation.summary_selection import build_summary_selection_items
 from app.ports.contracts.tasking import TaskDispatchPort, TaskStatePort
-from app.ports.domains.quotation import QuotationApprovalSelectionPort, QuotationTaskRepoPort
+from app.ports.outbound.quotation import QuotationApprovalSelectionPort, QuotationTaskRepoPort
 
 diag_logger = get_logger("diag.approve")
 

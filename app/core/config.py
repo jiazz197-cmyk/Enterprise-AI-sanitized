@@ -46,7 +46,7 @@ def _is_insecure_value(value: Any) -> bool:
         "demo",
         "default",
         "minioadmin",
-        "change_me_super_pass",
+        "superuser.5001",
     )
 
     return any(keyword in normalized for keyword in insecure_keywords)
@@ -81,9 +81,9 @@ class SingletonModelMeta(ModelMetaclass):
 class Settings(BaseSettings, metaclass=SingletonModelMeta):
     """单例配置：字段对应环境变量 / .env。"""
 
-    PROJECT_NAME: str = Field("Project Yamato Shanghai", env="PROJECT_NAME")
-    VERSION: str = Field("1.0.1", env="VERSION")
-    DESCRIPTION: str = Field("Project Yamato Shanghai API", env="DESCRIPTION")
+    PROJECT_NAME: str = Field("AI Data Tool", env="PROJECT_NAME")
+    VERSION: str = Field("1.0.0", env="VERSION")
+    DESCRIPTION: str = Field("AI数据工具后端API服务", env="DESCRIPTION")
     ENVIRONMENT: str = Field("development", env="ENVIRONMENT")
     DEBUG: bool = Field(True, env="DEBUG")
     @validator("DEBUG", pre=True)
@@ -164,14 +164,14 @@ class Settings(BaseSettings, metaclass=SingletonModelMeta):
     # SQL Server（U8 / PDM）
     U8_SQLSERVER_HOST: str = Field("127.0.0.1", env="U8_SQLSERVER_HOST")
     U8_SQLSERVER_PORT: int = Field(1433, env="U8_SQLSERVER_PORT")
-    U8_SQLSERVER_DATABASE: str = Field("change_me_u8_database", env="U8_SQLSERVER_DATABASE")
+    U8_SQLSERVER_DATABASE: str = Field("UFDATA_888_2016", env="U8_SQLSERVER_DATABASE")
     U8_SQLSERVER_USER: str = Field("sa", env="U8_SQLSERVER_USER")
     U8_SQLSERVER_PASSWORD: str = Field("change_me_u8_sqlserver_password", env="U8_SQLSERVER_PASSWORD")
     U8_SQLSERVER_ENCRYPT: bool = Field(False, env="U8_SQLSERVER_ENCRYPT")
 
     PDM_SQLSERVER_HOST: str = Field("127.0.0.1", env="PDM_SQLSERVER_HOST")
     PDM_SQLSERVER_PORT: int = Field(1433, env="PDM_SQLSERVER_PORT")
-    PDM_SQLSERVER_DATABASE: str = Field("change_me_pdm_database", env="PDM_SQLSERVER_DATABASE")
+    PDM_SQLSERVER_DATABASE: str = Field("pdm78", env="PDM_SQLSERVER_DATABASE")
     PDM_SQLSERVER_USER: str = Field("sa", env="PDM_SQLSERVER_USER")
     PDM_SQLSERVER_PASSWORD: str = Field("change_me_pdm_sqlserver_password", env="PDM_SQLSERVER_PASSWORD")
     PDM_SQLSERVER_ENCRYPT: bool = Field(False, env="PDM_SQLSERVER_ENCRYPT")
@@ -329,6 +329,7 @@ class Settings(BaseSettings, metaclass=SingletonModelMeta):
 
     OCR_PDFTEXT_ENABLED: bool = Field(True, env="OCR_PDFTEXT_ENABLED")
     OCR_PDFTEXT_TIMEOUT: int = Field(30, ge=5, le=120, env="OCR_PDFTEXT_TIMEOUT")
+    OCR_DOTSOCR_MAX_TOKENS: int = Field(4096, ge=1024, le=16384, env="OCR_DOTSOCR_MAX_TOKENS")
 
     HTTP_CLIENT_TIMEOUT: float = Field(30.0, env="HTTP_CLIENT_TIMEOUT")
     HTTP_CLIENT_MAX_CONNECTIONS: int = Field(100, env="HTTP_CLIENT_MAX_CONNECTIONS")
@@ -414,100 +415,66 @@ class Settings(BaseSettings, metaclass=SingletonModelMeta):
     def split_allowed_extensions(cls, v: Union[str, List[str]]) -> List[str]:
         return _split_comma_separated(v)
 
-    BGE_M3_API_URL: str = Field("http://localhost:8002/v1/embeddings", env="BGE_M3_API_URL")
+    BGE_M3_API_URL: str = Field("http://10.10.216.232:8002/v1/embeddings", env="BGE_M3_API_URL")
     BGE_M3_MODEL_NAME: str = Field("BAAI/bge-m3", env="BGE_M3_MODEL_NAME")
     BGE_M3_TOKENIZER_NAME: str = Field("BAAI/bge-m3", env="BGE_M3_TOKENIZER_NAME")
     
-    RERANKER_API_URL: str = Field("http://localhost:8003/v1/rerank", env="RERANKER_API_URL")
-
+    RERANKER_API_URL: str = Field("http://10.10.216.232:8003/v1/rerank", env="RERANKER_API_URL")
+    
+    DOTS_OCR_ENDPOINT: str = Field("http://10.10.216.232:8001/v1/chat/completions", env="DOTS_OCR_ENDPOINT")
+    
     LOCAL_MODEL_GPU_DEVICE: int = Field(3, env="LOCAL_MODEL_GPU_DEVICE")
 
-    # ── LLM / OCR models (all OpenAI-compatible chat-completions) ──────────
-    # Each group carries API_URL (base), MODEL (served id) and API_KEY
-    # (provider auth). Local vLLM leaves API_KEY empty — resolved to
-    # "not-needed" at the ChatOpenAI call site; external providers
-    # (DeepSeek, Moonshot, Together, OpenAI, …) set API_KEY and point
-    # API_URL at the provider's …/v1 root.
-
-    # Primary LLM — the larger model (was Qwen3.6-35B). Powers remark
-    # interpretation and context compression.
-    PRIMARY_LLM_API_URL: str = Field(
+    QWEN3_8B_API_URL: str = Field("http://localhost:80/llm/qwen8b/v1", env="QWEN3_8B_API_URL")
+    QWEN3_8B_MODEL: str = Field(
+        "Qwen/Qwen3-8B-FP8",
+        env="QWEN3_8B_MODEL",
+        description="Served model id for Qwen3-8B (GET /v1/models on the same base as QWEN3_8B_API_URL).",
+    )
+    QWEN3_8B_API_KEY: Optional[str] = Field(
+        default=None, env="QWEN3_8B_API_KEY",
+        description="API key for Qwen3-8B. Leave empty for local vLLM; required for external providers.",
+    )
+    QWEN3_6_35B_API_URL: str = Field(
         "http://localhost:80/llm/qwen36b/v1",
-        env="PRIMARY_LLM_API_URL",
-        description="OpenAI-compatible API root (…/v1) for the primary LLM. Proxy must target vLLM, not Dify/Next static routes.",
+        env="QWEN3_6_35B_API_URL",
+        description="OpenAI-compatible API root (…/v1) for Qwen3.6-35B; proxy must target vLLM, not Dify/Next static routes.",
     )
-    PRIMARY_LLM_MODEL: str = Field(
+    QWEN3_6_35B_MODEL: str = Field(
         "/models/Qwen3.6-35B-A3B",
-        env="PRIMARY_LLM_MODEL",
-        description="Served model id (GET /v1/models on the same base as PRIMARY_LLM_API_URL). vLLM often uses path-style ids, not Hub names.",
-    )
-    PRIMARY_LLM_API_KEY: Optional[str] = Field(
-        default=None, env="PRIMARY_LLM_API_KEY",
-        description="API key for the primary LLM. Leave empty for local unauthenticated vLLM; required for external providers.",
+        env="QWEN3_6_35B_MODEL",
+        description="Served model id (GET /v1/models on the same base as QWEN3_6_35B_API_URL). vLLM often uses path-style ids, not Hub names.",
     )
 
-    # Web search backend for the conversation workflow (replaces the Dify SearXNG plugin).
-    WEB_SEARCH_PROVIDER: str = Field("tavily", env="WEB_SEARCH_PROVIDER")
+    # ── Web search (conversation 联网检索，默认 Tavily 后端) ──────────────
     TAVILY_API_KEY: Optional[str] = Field(default=None, env="TAVILY_API_KEY")
 
-    # Conversation workflow concurrency caps (shared singletons, see
-    # app/integrations/conversation/runtime.py). These bound in-flight LLM
-    # calls per model so a burst of chat users cannot exhaust vLLM or memory.
+    # ── Conversation workflow concurrency caps (shared singletons, see
+    #    app/adapters/conversation/runtime.py). These bound in-flight LLM
+    #    calls and retrieval threads per process. ─────────────────────────
     CONVERSATION_8B_MAX_CONCURRENT: int = Field(
         20, ge=1, env="CONVERSATION_8B_MAX_CONCURRENT",
-        description="Max in-flight Qwen3-8B calls (keyword extraction + intent).",
+        description="Max concurrent Qwen3-8B calls (keyword split / intent enhancement).",
     )
     CONVERSATION_35B_MAX_CONCURRENT: int = Field(
         10, ge=1, env="CONVERSATION_35B_MAX_CONCURRENT",
-        description="Max in-flight Qwen3.6-35B streaming answers (each holds a vLLM slot for the whole stream).",
+        description="Max concurrent Qwen3.6-35B streaming answer calls.",
     )
     CONVERSATION_RETRIEVAL_MAX_WORKERS: int = Field(
         8, ge=1, env="CONVERSATION_RETRIEVAL_MAX_WORKERS",
-        description="Dedicated thread pool size for blocking RAG retrieval in the conversation workflow.",
+        description="ThreadPoolExecutor workers for parallel retrieval in a conversation turn.",
     )
-
-    # Secondary LLM — the smaller model (was Qwen3-8B). Powers chat-summary.
-    SECONDARY_LLM_API_URL: str = Field(
-        "http://localhost:80/llm/qwen8b/v1",
-        env="SECONDARY_LLM_API_URL",
-        description="OpenAI-compatible API root (…/v1) for the secondary LLM.",
-    )
-    SECONDARY_LLM_MODEL: str = Field(
-        "Qwen/Qwen3-8B-FP8",
-        env="SECONDARY_LLM_MODEL",
-        description="Served model id for the secondary LLM (GET /v1/models).",
-    )
-    SECONDARY_LLM_API_KEY: Optional[str] = Field(
-        default=None, env="SECONDARY_LLM_API_KEY",
-        description="API key for the secondary LLM. Leave empty for local vLLM; required for external providers.",
-    )
-
-    # OCR model — vision chat-completions endpoint (was DotsOCR).
-    OCR_MODEL_API_URL: str = Field(
-        "http://localhost:80/ocr/dotsocr/v1/chat/completions",
-        env="OCR_MODEL_API_URL",
-        description="OpenAI-compatible chat/completions URL for the OCR vision model.",
-    )
-    OCR_MODEL_NAME: str = Field(
-        "rednote-hilab/dots.ocr",
-        env="OCR_MODEL_NAME",
-        description="Model id sent in the OCR chat-completions payload.",
-    )
-    OCR_MODEL_API_KEY: Optional[str] = Field(
-        default=None, env="OCR_MODEL_API_KEY",
-        description="API key for the OCR model. Leave empty for local unauthenticated endpoint; sent as Bearer token when set.",
-    )
-    OCR_MODEL_MAX_TOKENS: int = Field(4096, ge=1024, le=16384, env="OCR_MODEL_MAX_TOKENS")
 
     # ── Remark LLM interpreter (spec sheet field adjustment) ───────────────
     # When enabled, a remark found in the parsed spec content is sent to the
-    # primary LLM to produce {canonical_field: adjusted_value} overrides.
-    # Any failure (no model service, timeout, bad output) degrades gracefully
-    # to the original pipeline behavior — this flag only gates the attempt.
+    # Qwen3.6-35B primary LLM to produce {canonical_field: adjusted_value}
+    # overrides. Any failure (no model service, timeout, bad output) degrades
+    # gracefully to the original pipeline behavior - this flag only gates the
+    # attempt.
     REMARK_LLM_INTERPRETER_ENABLED: bool = Field(
         True,
         env="REMARK_LLM_INTERPRETER_ENABLED",
-        description="Enable remark → field-adjustment in spec parsing (uses the primary LLM). Failures degrade gracefully.",
+        description="Enable remark -> field-adjustment in spec parsing (uses Qwen3.6-35B). Failures degrade gracefully.",
     )
     REMARK_LLM_REQUEST_TIMEOUT: float = Field(
         30.0, env="REMARK_LLM_REQUEST_TIMEOUT",
@@ -520,7 +487,10 @@ class Settings(BaseSettings, metaclass=SingletonModelMeta):
 
     N8N_BASE_URL: str = Field("http://localhost:5678", env="N8N_BASE_URL")
     N8N_API_KEY: Optional[str] = Field(default=None, env="N8N_API_KEY")
-
+    
+    DIFY_BASE_URL: str = Field("http://localhost:80", env="DIFY_BASE_URL")
+    DIFY_API_KEY: Optional[str] = Field(default=None, env="DIFY_API_KEY")
+    
     RAGFLOW_BASE_URL: str = Field("http://localhost:9380", env="RAGFLOW_BASE_URL")
     RAGFLOW_API_KEY: Optional[str] = Field(default=None, env="RAGFLOW_API_KEY")
     RAGFLOW_DATASET_ID: Optional[str] = Field(default=None, env="RAGFLOW_DATASET_ID")
@@ -552,9 +522,12 @@ class Settings(BaseSettings, metaclass=SingletonModelMeta):
     ENABLE_HSTS: bool = Field(True, env="ENABLE_HSTS")
     HSTS_MAX_AGE: int = Field(31536000, env="HSTS_MAX_AGE")
 
+    CHAT_API_KEY: str = Field("change_me_chat_api_key", env="CHAT_API_KEY")
+
     @field_validator(
         "SECRET_KEY",
         "INTERNAL_API_KEY",
+        "CHAT_API_KEY",
         "POSTGRES_PASSWORD",
         "U8_SQLSERVER_PASSWORD",
         "PDM_SQLSERVER_PASSWORD",

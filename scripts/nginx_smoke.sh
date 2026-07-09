@@ -7,7 +7,7 @@ if [[ ! -f "${ROOT}/nginx/nginx.conf" ]] && [[ -z "${SKIP_NGINX_RENDER:-}" ]]; t
 fi
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:8080}"
-PROBE_PATH="${PROBE_PATH:-/api/v1/health}"
+DIFY_PROBE_PATH="${DIFY_PROBE_PATH:-/api/v1/smoke}"
 
 MAX_TIME="${MAX_TIME:-3}"
 
@@ -46,7 +46,7 @@ expect_not_any_of() {
 expect_any_of "${BASE_URL}/" 200 301 302 304
 expect_any_of "${BASE_URL}/api/v1/docs" 200 301 302
 expect_any_of "${BASE_URL}/api/v1/docs/" 200 301 302 307 308
-expect_not_any_of "${BASE_URL}${PROBE_PATH}" 000 502 504
+expect_not_any_of "${BASE_URL}${DIFY_PROBE_PATH}" 000 502 504
 
 pass "nginx smoke ok"
 

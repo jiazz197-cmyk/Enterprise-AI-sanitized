@@ -1,6 +1,6 @@
 """Workflow adapter: bridges ``ConversationWorkflowPort`` to the langchain pipeline.
 
-The adapter is the only layer that imports ``app.integrations.conversation``.
+The adapter is the only layer that imports ``app.adapters.conversation``.
 It owns the ``RetrieverPort`` and ``WebSearchPort`` instances (injected at
 construction) and builds the ``ConversationPipeline``.
 """
@@ -9,12 +9,12 @@ from __future__ import annotations
 
 from typing import AsyncIterator
 
-from app.integrations.conversation.pipeline import ConversationPipeline
-from app.ports.domains.conversation import (
+from app.adapters.conversation.pipeline import ConversationPipeline
+from app.ports.outbound.conversation import (
     ConversationWorkflowPort,
     WebSearchPort,
 )
-from app.ports.domains.retriever import RetrieverPort
+from app.ports.outbound.retriever import RetrieverPort
 from app.ports.dto.conversation import WorkflowContext
 
 

@@ -5,10 +5,9 @@ from app.core.dependencies import get_rag_instance
 from app.core.config import settings
 from app.core.security import get_current_user
 from app.ports.contracts.identity import CurrentUserPort, ROLE_SUPERUSER
-from app.ports.domains.retriever import RetrievalQuery
-from app.adapters.retriever import RAGRetrieverAdapter
-from app.ragsystem import chart_analyze
-from app.schemas.base import ChatRequest, ChartRequest
+from app.ports.outbound.retriever import RetrievalQuery
+from app.adapters.retriever import ChartAnalysisAdapter, RAGRetrieverAdapter
+from app.adapters.web.base import ChatRequest, ChartRequest
 
 router = APIRouter()
 
@@ -74,5 +73,5 @@ async def charts(
 ):
     # Keep expensive chart analysis limited to authenticated users.
     _ = current_user
-    analyze = chart_analyze.analyze()
-    return await analyze.get_response(request.data_source, request.requirements)
+    adapter = ChartAnalysisAdapter()
+    return await adapter.analyze(request.data_source, request.requirements)

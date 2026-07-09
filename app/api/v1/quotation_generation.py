@@ -17,10 +17,10 @@ from sqlalchemy.orm import defer
 
 from app.adapters.quotation import (
     MinioFileStorageAdapter,
-    QuotationDispatchAdapter,
     ResultPayloadQuotationApprovalSelectionAdapter,
     SqlAlchemyQuotationTaskRepoAdapter,
 )
+from app.adapters.workers.dispatch import QuotationDispatchAdapter
 from app.adapters.quotation.purge import QuotationTaskPurgeAdapter
 from app.adapters.quotation.retention import QuotationTaskRetentionAdapter
 from app.adapters.tasking import TaskManagerStateAdapter, ThreadPoolTaskExecutionAdapter
@@ -457,6 +457,7 @@ async def delete_quotation_task(
     _check_task_permission(task, current_user)
     usecase = DeleteQuotationTaskUseCase(
         task_repo=SqlAlchemyQuotationTaskRepoAdapter(db),
+        purge_port=QuotationTaskPurgeAdapter(),
     )
     result = await usecase.execute(DeleteQuotationTaskCommand(task_id=task_id))
     return DeleteTaskResponse(

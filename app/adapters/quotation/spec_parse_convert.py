@@ -19,8 +19,8 @@ from app.domain.quotation.remark_adjustment import (
     apply_adjustments,
     collect_remark_text,
 )
-from app.integrations.pdm_matcher.spec_converter import convert_all, parse_spec_sheet
-from app.ports.domains.quotation import (
+from app.adapters.pdm_matcher.spec_converter import convert_all, parse_spec_sheet
+from app.ports.outbound.quotation import (
     CancelChecker,
     RemarkInterpreterPort,
     SpecParseAndConvertPort,

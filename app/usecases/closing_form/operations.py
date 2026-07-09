@@ -5,7 +5,7 @@ from __future__ import annotations
 from app.core.exceptions import APIException, NotFoundError, ValidationError
 from app.core.logging import get_logger
 from app.ports.contracts.identity import CurrentUserPort
-from app.ports.domains.closing_form import (
+from app.ports.outbound.closing_form import (
     ClosingFormEmbeddingPort,
     ClosingFormImageStoragePort,
     ClosingFormPersistencePort,

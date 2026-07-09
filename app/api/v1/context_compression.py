@@ -4,12 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field, field_validator
 
 from app.adapters.context_compression import IntegrationContextCompressorAdapter
-from app.adapters.conversation.deps import build_conversation_repo
 from app.core.exceptions import APIException, ExternalServiceError
 from app.core.security import get_current_user
 from app.core.validators.conversation_id import validate_conversation_id
 from app.ports.contracts.identity import CurrentUserPort
-from app.schemas.base import FormatJSONResponse
+from app.adapters.web.base import FormatJSONResponse
 from app.usecases.context_compression.compress import CompressContextCommand, CompressContextUseCase
 
 logger = logging.getLogger(__name__)
@@ -21,7 +20,7 @@ class ContextCompressionRequest(BaseModel):
         ..., min_length=1, max_length=512, description="User ID for fetching conversation"
     )
     conversation_id: str = Field(
-        ..., min_length=1, max_length=128, description="Local conversation ID"
+        ..., min_length=1, max_length=128, description="Dify conversation ID"
     )
     n_recent: int = Field(
         5, ge=1, le=100, description="Number of recent dialogue turns to keep"
@@ -39,12 +38,10 @@ async def compress_chat_context(
     current_user: CurrentUserPort = Depends(get_current_user),
 ):
     """
-    Compress chat context based on the local conversation ID.
+    Compress chat context based on Dify conversation ID.
     """
     try:
-        result = await CompressContextUseCase(
-            IntegrationContextCompressorAdapter(conversation_repo=build_conversation_repo())
-        ).execute(
+        result = await CompressContextUseCase(IntegrationContextCompressorAdapter()).execute(
             CompressContextCommand(
                 user_id=request.user_id,
                 conversation_id=request.conversation_id,

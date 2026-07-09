@@ -12,9 +12,9 @@ import tempfile
 import httpx
 
 from app.core.config import settings
-from app.integrations.ocr.pdf2image import pdf_to_images
-from app.integrations.ocr.text_cleaning import clean_dotsocr_text, pdftotext_has_key_fields
-from app.ports.domains.quotation import CancelChecker, OcrPlainTextPort, OcrTextExtractionResult
+from app.adapters.ocr.pdf2image import pdf_to_images
+from app.adapters.ocr.text_cleaning import clean_dotsocr_text, pdftotext_has_key_fields
+from app.ports.outbound.quotation import CancelChecker, OcrPlainTextPort, OcrTextExtractionResult
 
 logger = logging.getLogger(__name__)
 
@@ -114,22 +114,16 @@ class OcrPlainTextAdapter(OcrPlainTextPort):
             logger.warning("PDF 无页面")
             return "", 0
 
-        endpoint = settings.OCR_MODEL_API_URL
-        model_name = settings.OCR_MODEL_NAME
-        max_tokens = settings.OCR_MODEL_MAX_TOKENS
+        endpoint = settings.DOTS_OCR_ENDPOINT
+        max_tokens = getattr(settings, "OCR_DOTSOCR_MAX_TOKENS", 4096)
         ct = settings.OCR_HTTP_CONNECT_TIMEOUT
         rt = settings.OCR_HTTP_READ_TIMEOUT
-        headers = {"Content-Type": "application/json"}
-        # Local vLLM has no auth; external providers set OCR_MODEL_API_KEY
-        # (sent as a Bearer token).
-        if settings.OCR_MODEL_API_KEY:
-            headers["Authorization"] = f"Bearer {settings.OCR_MODEL_API_KEY}"
 
         all_texts: list[str] = []
         for page_idx, (img_bytes, _) in enumerate(pages):
             b64_data = base64.b64encode(img_bytes).decode("ascii")
             payload = {
-                "model": model_name,
+                "model": "rednote-hilab/dots.ocr",
                 "messages": [{
                     "role": "user",
                     "content": [
@@ -143,7 +137,7 @@ class OcrPlainTextAdapter(OcrPlainTextPort):
 
             try:
                 with httpx.Client(timeout=httpx.Timeout(rt, connect=ct)) as client:
-                    resp = client.post(endpoint, headers=headers, json=payload)
+                    resp = client.post(endpoint, json=payload)
                 if not resp.is_success:
                     logger.warning("DotsOCR 第%d页 HTTP %d", page_idx + 1, resp.status_code)
                     continue

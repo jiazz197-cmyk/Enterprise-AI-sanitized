@@ -8,15 +8,15 @@ from llama_index.core.schema import TextNode
 
 from app.core.config import settings
 from app.core.logging import get_logger
-from app.integrations.closing_form.constants import (
+from app.adapters.closing_form.constants import (
     CLOSING_FORM_INSTANCE_ID,
     CLOSING_FORM_TABLE_PREFIX,
 )
-from app.integrations.doc_processing.embedding_store import (
+from app.adapters.doc_processing.embedding_store import (
     BGEM3EmbeddingWrapper,
     VectorStoreManager,
 )
-from app.integrations.doc_processing.exceptions import EmbeddingError, VectorStoreError
+from app.adapters.doc_processing.exceptions import EmbeddingError, VectorStoreError
 
 logger = get_logger("closing_form.embedding")
 

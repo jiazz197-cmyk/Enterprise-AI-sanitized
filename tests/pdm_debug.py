@@ -12,7 +12,7 @@ from app.core.database import AsyncSessionLocal
 from app.models.orm.quotation_task import QuotationTask
 from app.domain.quotation.keyword_mapping import expand_keyword_mapping
 from app.domain.quotation.keyword_normalizer import normalize_pdm_keywords
-from app.integrations.sqlserver.pdm_bom import build_pdm_and_where_clause
+from app.adapters.sqlserver.pdm_bom import build_pdm_and_where_clause
 
 
 def _inline_params(sql: str, params) -> str:

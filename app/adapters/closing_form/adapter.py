@@ -7,7 +7,7 @@ from typing import Any, Optional
 from app.adapters.closing_form.embedding import ClosingFormEmbeddingAdapter
 from app.adapters.closing_form.persistence import ClosingFormPersistence
 from app.adapters.closing_form.storage import ClosingFormStorageAdapter
-from app.ports.domains.closing_form import (
+from app.ports.outbound.closing_form import (
     ClosingFormEmbeddingPort,
     ClosingFormImageStoragePort,
     ClosingFormPersistencePort,

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Dict
 
 from app.core.exceptions import APIException
-from app.ports.domains.quotation import QuotationTaskRepoPort
+from app.ports.outbound.quotation import QuotationTaskPurgePort, QuotationTaskRepoPort
 from app.usecases.quotation.purge import purge_quotation_task
 
 _TERMINAL_STATUSES = {"completed", "failed", "cancelled"}
@@ -27,8 +27,9 @@ class DeleteQuotationTaskResult:
 
 
 class DeleteQuotationTaskUseCase:
-    def __init__(self, task_repo: QuotationTaskRepoPort):
+    def __init__(self, task_repo: QuotationTaskRepoPort, purge_port: QuotationTaskPurgePort):
         self._task_repo = task_repo
+        self._purge = purge_port
 
     async def execute(self, cmd: DeleteQuotationTaskCommand) -> DeleteQuotationTaskResult:
         task = await self._task_repo.get_task(cmd.task_id)
@@ -42,7 +43,7 @@ class DeleteQuotationTaskUseCase:
                 error_code="INVALID_TASK_STATUS",
             )
 
-        result = await purge_quotation_task(cmd.task_id, allow_non_terminal=False)
+        result = await purge_quotation_task(cmd.task_id, purge_port=self._purge, allow_non_terminal=False)
         if not result.get("purged"):
             raise APIException(
                 "任务删除失败",

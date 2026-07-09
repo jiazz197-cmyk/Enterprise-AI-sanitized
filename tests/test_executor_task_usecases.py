@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import uuid
 from concurrent.futures import Future
-from types import SimpleNamespace
 from typing import Any, Dict, Optional
 
 import pytest
 
 from app.core.exceptions import NotFoundError, PermissionDeniedError
 from app.models.orm.platform.user import UserRole
+from app.ports.contracts.identity import CurrentUserDTO
 from app.usecases.async_executor.executor_task_query import (
     GetExecutorTaskStatusQuery,
     GetExecutorTaskStatusUseCase,
@@ -19,7 +19,7 @@ from app.usecases.async_executor.task_access import ensure_task_owner_or_superus
 
 
 def _user(*, uid: Optional[uuid.UUID] = None, role: UserRole = UserRole.user) -> Any:
-    return SimpleNamespace(id=uid or uuid.uuid4(), role=role, username="tester")
+    return CurrentUserDTO(id=str(uid or uuid.uuid4()), role=role.value, username="tester")
 
 
 class FakeExecutorPort:

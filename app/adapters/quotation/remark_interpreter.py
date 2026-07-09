@@ -1,6 +1,6 @@
 """Primary-LLM adapter: interpret remark text into field-value adjustments.
 
-Calls the OpenAI-compatible primary LLM (configured via PRIMARY_LLM_*)
+Calls the OpenAI-compatible primary LLM (configured via QWEN3_6_35B_*)
 synchronously (the Phase1 pipeline is synchronous). Graceful degradation is
 mandatory: any failure — no model service, timeout, HTML error page,
 unparseable output — returns an empty dict and the pipeline continues with the
@@ -23,7 +23,7 @@ from app.domain.quotation.remark_adjustment import (
     allowed_keys_for,
     validate_and_reorganize,
 )
-from app.ports.domains.quotation import CancelChecker, RemarkInterpreterPort
+from app.ports.outbound.quotation import CancelChecker, RemarkInterpreterPort
 
 logger = logging.getLogger(__name__)
 
@@ -80,12 +80,12 @@ class QwenRemarkInterpreter(RemarkInterpreterPort):
         max_tokens: Optional[int] = None,
         request_timeout: Optional[float] = None,
     ):
-        self.base_url = base_url or settings.PRIMARY_LLM_API_URL
-        self.model_name = model_name or settings.PRIMARY_LLM_MODEL
+        self.base_url = base_url or settings.QWEN3_6_35B_API_URL
+        self.model_name = model_name or settings.QWEN3_6_35B_MODEL
         # Local vLLM leaves the key empty → ChatOpenAI still needs a non-empty
         # value, so fall back to "not-needed". External providers inject the
-        # real key via settings.PRIMARY_LLM_API_KEY (or the api_key arg).
-        self.api_key = api_key if api_key is not None else (settings.PRIMARY_LLM_API_KEY or "not-needed")
+        # real key via the api_key arg.
+        self.api_key = api_key if api_key is not None else "not-needed"
         self.temperature = temperature
         self.max_tokens = max_tokens if max_tokens is not None else settings.REMARK_LLM_MAX_TOKENS
         self.request_timeout = (
